@@ -416,6 +416,7 @@ There is also an [example](docs/drawflow-element.html) how to use Drawflow in a 
 Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
 
 - Repair of duplicated and one-sided connections on import: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
+- Container classes other than the first one (issue #469): idea from pavlyuts ([pavlyuts](https://github.com/pavlyuts), PR #141).
 
 ## License
 MIT License

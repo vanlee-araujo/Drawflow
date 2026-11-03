@@ -180,7 +180,7 @@ export default class Drawflow {
     this.dispatch('click', e);
     if(this.editor_mode === 'fixed') {
       //return false;
-       if(e.target.classList[0] === 'parent-drawflow' || e.target.classList[0] === 'drawflow') {
+       if(e.target.classList.contains('parent-drawflow') || e.target.classList.contains('drawflow')) {
          this.ele_selected = e.target.closest(".parent-drawflow");
          e.preventDefault();
        } else {
@@ -202,7 +202,7 @@ export default class Drawflow {
         this.ele_selected = e.target.closest(".drawflow_content_node").parentElement;
       }
     }
-    switch (this.ele_selected.classList[0]) {
+    switch (this.elementType(this.ele_selected)) {
       case 'drawflow-node':
         if(this.node_selected != null) {
           this.node_selected.classList.remove("selected");
@@ -1192,6 +1192,12 @@ export default class Drawflow {
   }
   nodeElementId(id) {
     return 'node-' + this.nodeKey(id);
+  }
+
+  // Kind of element by its classes, not only the first one: the container may have classes of its own
+  elementType(ele) {
+    const types = ['drawflow-node', 'output', 'parent-drawflow', 'drawflow', 'main-path', 'point', 'drawflow-delete'];
+    return types.find(type => ele.classList.contains(type)) || ele.classList[0];
   }
 
   getNodeFromId(id) {
