@@ -292,6 +292,7 @@ Method | Description
 `setConnectionArrow(arrow, size, offset)` | Change arrows of all connections. Ex: `'both'` or `'end', 16, 9`
 `setConnectionDirection(direction)` | Change direction and redraw connections. Ex: `'vertical'`
 `zoomFit(options)` | Zoom and pan so that every node fits in the editor. Options: `padding` (20), `minZoom` (`zoom_min`; lower it to fit big flows), `maxZoom` (1)
+`autoLayout(dagre, options)` | Arrange the nodes in layers with [dagre](https://github.com/dagrejs/dagre), loaded by you. Options: `direction` (`LR`, `TB`, `RL`, `BT`; default from `connection_direction`), `nodesep` (40), `ranksep` (70), `edgesep` (10), `fit` (true), `fitOptions` (for `zoomFit`). Reroute points are removed
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -325,6 +326,11 @@ editor.connection_validator = ({ output_id, input_id }) => output_id !== input_i
 ```javascript
 // Show the whole flow, even when it is bigger than zoom_min allows
 editor.zoomFit({ padding: 40, minZoom: 0.1 });
+```
+
+```javascript
+// Arrange the flow (load dagre yourself: npm i @dagrejs/dagre, or its dist/dagre.min.js)
+editor.autoLayout(dagre, { direction: 'LR' });
 ```
 
 ## Events

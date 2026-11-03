@@ -248,6 +248,10 @@ div.parent-drawflow              ← your container
   Together they fit a drawing on screen.
 - `zoomFit({ padding, minZoom, maxZoom })` shows every node, ports and connections included, centered.
   `minZoom` below `zoom_min` fits flows that are too big for the zoom limits.
+- `autoLayout(dagre, options)` arranges the current module in layers with [dagre](https://github.com/dagrejs/dagre),
+  which you load and pass (Drawflow keeps no dependency): each node after the nodes it depends on,
+  with few crossings, following `connection_direction`. Reroute points are removed, and the result is
+  fitted on screen (`fit: false` to skip).
 - Node ids are accepted as `5`, `'5'` or `'node-5'` in every method.
 
 ## Validating connections
@@ -298,7 +302,7 @@ pulse in the default CSS).
 
 - Only the current module is drawn; there is no list of modules besides
   `Object.keys(editor.drawflow.drawflow)`.
-- No undo, multi-selection, minimap or automatic layout.
+- No undo, multi-selection or minimap. Automatic layout needs dagre (`autoLayout`).
 - Very large flows (thousands of connections) are slow to import, because every connection is
   measured in the page.
 - Safari draws arrows with the fallback color (no `context-stroke`).
