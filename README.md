@@ -197,7 +197,7 @@ editor.removeModule('nameModule');
 // Default Module is Home
 editor.changeModule('Home');
 ```
-`RemovedModule` if it is in the same module redirects to the `Home` module
+`removeModule` of the module on screen shows another existing module (or an empty `Home` when it was the last one).
 
 
 ## Nodes
@@ -339,7 +339,7 @@ editor.on('nodeCreated', function(id) {
 ```
 
 ## Export / Import
-You can export and import your data. On import, connections are checked: node ids become text, duplicated connections are removed, and each connection is kept on both sides (output and input).
+You can export and import your data. On import, connections are checked: node ids become text, duplicated connections are removed, and each connection is kept on both sides (output and input). If the data has no module with the current name (ex. no `Home`), the first module is shown.
 ```javascript
 var exportdata = editor.export();
 editor.import(exportdata);

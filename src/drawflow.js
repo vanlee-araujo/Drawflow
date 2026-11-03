@@ -1939,10 +1939,15 @@ export default class Drawflow {
   }
 
   removeModule(name) {
-    if(this.module === name) {
-      this.changeModule('Home');
-    }
     delete this.drawflow.drawflow[name];
+    if(this.module === name) {
+      // Removing the module on screen: show another one (or an empty 'Home')
+      const modules = Object.keys(this.drawflow.drawflow);
+      if(modules.length === 0) {
+        this.drawflow.drawflow['Home'] = { "data": {} };
+      }
+      this.changeModule(modules.length > 0 ? modules[0] : 'Home');
+    }
     this.dispatch('moduleRemoved', name);
   }
 
@@ -1971,6 +1976,15 @@ export default class Drawflow {
     this.clear();
     this.drawflow = JSON.parse(JSON.stringify(data));
     this.repairConnections();
+    if(this.drawflow.drawflow[this.module] === undefined) {
+      // Data without the current module (ex. without 'Home'): show the first one
+      const modules = Object.keys(this.drawflow.drawflow);
+      if(modules.length > 0) {
+        this.module = modules[0];
+      } else {
+        this.drawflow.drawflow[this.module] = { "data": {} };
+      }
+    }
     this.load();
     if(notifi) {
       this.dispatch('import', 'import');
