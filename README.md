@@ -422,6 +422,7 @@ Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some
 - Data keys with characters that are invalid in CSS selectors (ex. `,` and `|`): fix by yiiouo ([rni-l/Drawflow](https://github.com/rni-l/Drawflow), issue #336), extended to all characters with `CSS.escape`.
 - Dragging outside the container: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
 - Delete button with the `✕` symbol: Urban Sanden ([urre/Drawflow](https://github.com/urre/Drawflow), PR #666).
+- Reuse of `contextmenuDel()`: Filip Chytil ([filchy](https://github.com/filchy), PR #579).
 
 ## License
 MIT License
