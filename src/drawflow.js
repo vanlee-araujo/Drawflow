@@ -594,14 +594,12 @@ export default class Drawflow {
   }
   zoom_in() {
     if(this.zoom < this.zoom_max) {
-        this.zoom+=this.zoom_value;
-        this.zoom_refresh();
+      this.setZoom(this.zoom + this.zoom_value);
     }
   }
   zoom_out() {
     if(this.zoom > this.zoom_min) {
-      this.zoom-=this.zoom_value;
-        this.zoom_refresh();
+      this.setZoom(this.zoom - this.zoom_value);
     }
   }
   zoom_reset(){
@@ -611,7 +609,8 @@ export default class Drawflow {
     }
   }
   setZoom(value) {
-    this.zoom = Math.min(this.zoom_max, Math.max(this.zoom_min, value));
+    // Rounded: 1.5 + 0.1 must not end up above zoom_max because of floating point
+    this.zoom = Math.min(this.zoom_max, Math.max(this.zoom_min, Math.round(value * 1000) / 1000));
     this.zoom_refresh();
   }
   setCanvasPosition(x, y) {
