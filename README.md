@@ -173,7 +173,7 @@ Parameter | Type | Default | Description
 `reroute_curvature` | Number | 0.5 | Curvature reroute
 `reroute_width` | Number | 6 | Width of reroute
 `line_path` | Number | 5 | Width of line
-`force_first_input` | Boolean | false | Force the first input to drop the connection on top of the node
+`force_first_input` | Boolean | false | Dropping a connection anywhere on a node connects it to the node's first input
 `editor_mode` | Text | `edit` | `edit` for edit, `fixed` for nodes fixed but their input fields available, `view` for view only
 `zoom` | Number | 1 | Default zoom
 `zoom_max` | Number | 1.6 | Default zoom max
@@ -188,6 +188,7 @@ Parameter | Type | Default | Description
 `connection_arrow_size` | Number | 14 | Arrow length and width
 `connection_arrow_offset` | Number | 12 | Distance from the port center to the arrow tip, so the tip stays outside the port. Use half of your port size (with border)
 `connection_direction` | Text | `horizontal` | `horizontal`: inputs on the left, outputs on the right. `vertical`: inputs on top, outputs at the bottom, curves leave and enter vertically. Change it later with `setConnectionDirection`
+`connection_target_class` | Text | `connection-target` | Class added to the node under the pointer while dragging a connection, when releasing there creates the connection (on an input, or anywhere on the node with `force_first_input`)
 `connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
 
 ### Reroute
@@ -421,7 +422,7 @@ Example of exported data:
 
 ```
 
-### Arrows and direction
+### Arrows, direction and connection classes
 
 ```javascript
 editor.connection_arrow = 'end';           // before editor.start()
@@ -433,6 +434,7 @@ editor.setConnectionDirection('horizontal');
 ```
 
 - The arrow takes the color of its line, also on hover and when selected (`fill: context-stroke`). Browsers without `context-stroke` (Safari) use the fallback color: `.drawflow-arrow { fill: steelblue; }`. Set it to your line color.
+- Each connection, and each output port, gets `connection-<class>` for every class of its source node. Ex: a node with class `query` gives `connection-query`, so lines of each node type can have their own color.
 - With `connection_direction = 'vertical'` the container gets the class `drawflow-vertical`. If you restyle ports, keep inputs on the top border and outputs on the bottom border.
 
 ## Example
@@ -452,6 +454,7 @@ Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some
 - `moduleChanged` after the module is drawn and the new `moduleChanging`: Wayne Ellis ([codemwnci](https://github.com/codemwnci), PR #683).
 - `zoom_use_ctrl_key` option: ftab ([eviltik](https://github.com/eviltik), PR #648).
 - Loop for connections to a node behind the output: Guillermo Gefaell ([konum](https://github.com/konum), PR #947).
+- Connection classes by source node type, highlight of the target node while dragging a connection: idea and first code by Mouhamed Assafiri / Mo-WW ([mofolo/Drawflow](https://github.com/mofolo/Drawflow)).
 
 ## License
 MIT License

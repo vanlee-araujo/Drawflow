@@ -120,6 +120,15 @@
   stroke: none;
 }
 
+/* Node under the pointer while dragging a connection */
+.drawflow .drawflow-node.connection-target {
+  animation: drawflow-target-pulse 1.5s ease-in-out infinite;
+}
+@keyframes drawflow-target-pulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(70, 130, 180, 0.4), 0 0 10px rgba(70, 130, 180, 0.3); }
+  50% { box-shadow: 0 0 10px rgba(70, 130, 180, 0.8), 0 0 20px rgba(70, 130, 180, 0.6); }
+}
+
 /* connection_direction = 'vertical': inputs on top, outputs at the bottom */
 .drawflow-vertical .drawflow .drawflow-node {
   flex-direction: column;
