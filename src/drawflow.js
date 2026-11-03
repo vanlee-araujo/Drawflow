@@ -78,6 +78,19 @@ export default class Drawflow {
     this.container.addEventListener('input', this.updateNodeValue.bind(this));
 
     this.container.addEventListener('dblclick', this.dblclick.bind(this));
+    /* Keep dragging when the pointer leaves the container, and release it outside */
+    this.window_mousemove = e => {
+      if(!this.container.contains(e.target) && (this.drag || this.drag_point || this.editor_selected || this.connection)) {
+        this.position(e);
+      }
+    };
+    this.window_mouseup = e => {
+      if(!this.container.contains(e.target) && (this.drag || this.drag_point || this.editor_selected || this.connection)) {
+        this.dragEnd(e);
+      }
+    };
+    window.addEventListener('mousemove', this.window_mousemove);
+    window.addEventListener('mouseup', this.window_mouseup);
     /* Mobile zoom */
     this.container.onpointerdown = this.pointerdown_handler.bind(this);
     this.container.onpointermove = this.pointermove_handler.bind(this);
