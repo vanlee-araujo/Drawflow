@@ -1194,7 +1194,7 @@ export default class Drawflow {
     node.setAttribute("id", "node-"+newNodeId);
     node.classList.add("drawflow-node");
     if(classoverride != '') {
-      node.classList.add(...classoverride.split(' '));
+      node.classList.add(...classoverride.split(' ').filter(name => name !== ''));
     }
 
     const inputs = document.createElement('div');
@@ -1318,7 +1318,7 @@ export default class Drawflow {
     node.setAttribute("id", "node-"+dataNode.id);
     node.classList.add("drawflow-node");
     if(dataNode.class != '') {
-      node.classList.add(...dataNode.class.split(' '));
+      node.classList.add(...dataNode.class.split(' ').filter(name => name !== ''));
     }
 
     const inputs = document.createElement('div');
