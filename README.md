@@ -275,7 +275,7 @@ Mehtod | Description
 `removeConnectionNodeId(id)` | Remove node connections. Ex id: `node-x`
 `getModuleFromNodeId(id)` | Get name of module where is the id. Ex id: `5`
 `clearModuleSelected()` | Clear data of module selected
-`clear()` | Clear all data of all modules and modules remove.
+`clear()` | Remove all modules and data, and go back to an empty `Home` module
 
 ### Methods example
 
