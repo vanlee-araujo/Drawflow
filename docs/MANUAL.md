@@ -246,6 +246,8 @@ div.parent-drawflow              ← your container
   `nodeMoved`. Use it for automatic layout (for example with [dagre](https://github.com/dagrejs/dagre)).
 - `setZoom(value)` sets the zoom inside `zoom_min` and `zoom_max`; `setCanvasPosition(x, y)` pans.
   Together they fit a drawing on screen.
+- `zoomFit({ padding, minZoom, maxZoom })` shows every node, ports and connections included, centered.
+  `minZoom` below `zoom_min` fits flows that are too big for the zoom limits.
 - Node ids are accepted as `5`, `'5'` or `'node-5'` in every method.
 
 ## Validating connections
