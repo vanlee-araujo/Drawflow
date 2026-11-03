@@ -1885,10 +1885,61 @@ export default class Drawflow {
   import (data, notifi = true) {
     this.clear();
     this.drawflow = JSON.parse(JSON.stringify(data));
+    this.repairConnections();
     this.load();
     if(notifi) {
       this.dispatch('import', 'import');
     }
+  }
+
+  // Imported data: node ids as text, no duplicated connections, and every connection present on
+  // both sides (output and input). The input side is the one drawn; reroute points live on the output side.
+  repairConnections() {
+    Object.keys(this.drawflow.drawflow).forEach(moduleName => {
+      const data = this.drawflow.drawflow[moduleName].data || {};
+      const valid = {};
+      Object.keys(data).forEach(id => {
+        Object.keys(data[id].inputs || {}).forEach(input_class => {
+          const seen = {};
+          data[id].inputs[input_class].connections = data[id].inputs[input_class].connections.filter(item => {
+            const key = String(item.node) + ' ' + item.input;
+            const source = data[item.node];
+            if(seen[key] || source === undefined || source.outputs === undefined || source.outputs[item.input] === undefined) {
+              return false;
+            }
+            seen[key] = true;
+            item.node = String(item.node);
+            valid[item.node + ' ' + item.input + ' ' + id + ' ' + input_class] = true;
+            return true;
+          });
+        });
+      });
+      Object.keys(data).forEach(id => {
+        Object.keys(data[id].outputs || {}).forEach(output_class => {
+          const seen = {};
+          data[id].outputs[output_class].connections = data[id].outputs[output_class].connections.filter(item => {
+            const key = id + ' ' + output_class + ' ' + String(item.node) + ' ' + item.output;
+            if(seen[key] || !valid[key]) {
+              return false;
+            }
+            seen[key] = true;
+            item.node = String(item.node);
+            return true;
+          });
+        });
+      });
+      // Connections only listed on the input side
+      Object.keys(data).forEach(id => {
+        Object.keys(data[id].inputs || {}).forEach(input_class => {
+          data[id].inputs[input_class].connections.forEach(item => {
+            const outputs = data[item.node].outputs[item.input].connections;
+            if(!outputs.some(out => out.node === String(id) && out.output === input_class)) {
+              outputs.push({ "node": String(id), "output": input_class });
+            }
+          });
+        });
+      });
+    });
   }
 
   /* Events */

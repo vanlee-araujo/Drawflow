@@ -336,7 +336,7 @@ editor.on('nodeCreated', function(id) {
 ```
 
 ## Export / Import
-You can export and import your data.
+You can export and import your data. On import, connections are checked: node ids become text, duplicated connections are removed, and each connection is kept on both sides (output and input).
 ```javascript
 var exportdata = editor.export();
 editor.import(exportdata);
@@ -409,6 +409,11 @@ Example of exported data:
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
 There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
+
+## Credits
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
+
+- Repair of duplicated and one-sided connections on import: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
 
 ## License
 MIT License
