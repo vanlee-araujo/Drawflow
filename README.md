@@ -306,7 +306,8 @@ Event | Return | Description
   `removeReroute` | id | `id` of Node output
   `rerouteMoved` | id | `id` of Node output
   `moduleCreated` | name | `name` of Module
-  `moduleChanged` | name | `name` of Module
+  `moduleChanging` | name | `name` of Module, before the change
+  `moduleChanged` | name | `name` of Module, after the module is drawn
   `moduleRemoved` | name | `name` of Module
   `click` | event | Click event
   `clickEnd` | event | Once the click changes have been made
@@ -400,6 +401,11 @@ Example of exported data:
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
 There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
+
+## Credits
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
+
+- `moduleChanged` after the module is drawn and the new `moduleChanging`: Wayne Ellis ([codemwnci](https://github.com/codemwnci), PR #683).
 
 ## License
 MIT License
