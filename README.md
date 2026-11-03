@@ -265,6 +265,7 @@ Mehtod | Description
 `setZoom(value)` | Set zoom, limited to `zoom_min` and `zoom_max`. Ex: `0.8`
 `setCanvasPosition(x, y)` | Move (pan) the editor canvas. Ex: `0, 0`
 `setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
+`zoomFit(options)` | Zoom and pan so that every node fits in the editor. Options: `padding` (20), `minZoom` (`zoom_min`; lower it to fit big flows), `maxZoom` (1)
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -290,6 +291,11 @@ editor.removeNodeId('node-4');
 ```javascript
 // Block connections from a node to itself
 editor.connection_validator = ({ output_id, input_id }) => output_id !== input_id;
+```
+
+```javascript
+// Show the whole flow, even when it is bigger than zoom_min allows
+editor.zoomFit({ padding: 40, minZoom: 0.1 });
 ```
 
 ## Events
