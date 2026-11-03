@@ -32,6 +32,9 @@ export default class Drawflow {
     this.draggable_inputs = true;
     this.useuuid = false;
     this.parent = parent;
+    // Class added to the node under the pointer while dragging a connection, when dropping there connects
+    this.connection_target_class = 'connection-target';
+    this.connection_target = null;
 
     this.noderegister = {};
     this.render = render;
@@ -348,6 +351,7 @@ export default class Drawflow {
 
     if(this.connection) {
       this.updateConnection(e_pos_x, e_pos_y);
+      this.setConnectionTarget(this.connectionTargetAt(e_pos_x, e_pos_y));
     }
     if(this.editor_selected) {
       x =  this.canvas_x + (-(this.pos_x - e_pos_x))
@@ -448,19 +452,12 @@ export default class Drawflow {
       this.editor_selected = false;
     }
     if(this.connection === true) {
-      if(ele_last.classList[0] === 'input' || (this.force_first_input && (ele_last.closest(".drawflow_content_node") != null || ele_last.classList[0] === 'drawflow-node'))) {
+      this.setConnectionTarget(null);
+      if(ele_last && (ele_last.classList[0] === 'input' || (this.force_first_input && ele_last.closest(".drawflow-node") != null))) {
 
-        if(this.force_first_input && (ele_last.closest(".drawflow_content_node") != null || ele_last.classList[0] === 'drawflow-node')) {
-          if(ele_last.closest(".drawflow_content_node") != null) {
-            var input_id = ele_last.closest(".drawflow_content_node").parentElement.id;
-          } else {
-            var input_id = ele_last.id;
-          }
-         if(Object.keys(this.getNodeFromId(input_id.slice(5)).inputs).length === 0) {
-           var input_class = false;
-         } else {
-          var input_class = "input_1";
-         }
+        if(ele_last.classList[0] !== 'input') {
+          var input_id = ele_last.closest(".drawflow-node").id;
+          var input_class = this.firstInputClass(input_id.slice(5));
 
 
        } else {
@@ -482,6 +479,7 @@ export default class Drawflow {
           this.connection_ele.classList.add(input_class);
           var id_input = input_id.slice(5);
           var id_output = output_id.slice(5);
+          this.connection_ele.classList.add(...this.connectionClassesFromNode(id_output));
 
           this.drawflow.drawflow[this.module].data[id_output].outputs[output_class].connections.push( {"node": id_input, "output": input_class});
           this.drawflow.drawflow[this.module].data[id_input].inputs[input_class].connections.push( {"node": id_output, "input": output_class});
@@ -724,6 +722,7 @@ export default class Drawflow {
           connection.classList.add("node_out_node-"+id_output);
           connection.classList.add(output_class);
           connection.classList.add(input_class);
+          connection.classList.add(...this.connectionClassesFromNode(id_output));
           connection.appendChild(path);
           this.precanvas.appendChild(connection);
           this.updateConnectionNodes('node-'+id_output);
@@ -1054,6 +1053,48 @@ export default class Drawflow {
     })
   }
 
+  firstInputClass(id) {
+    const inputs = Object.keys(this.drawflow.drawflow[this.getModuleFromNodeId(id)].data[id].inputs);
+    return inputs.length === 0 ? false : inputs[0];
+  }
+
+  connectionClassesFromNode(id) {
+    const dataNode = this.drawflow.drawflow[this.module].data[id];
+    if(!dataNode || typeof dataNode.class !== 'string') {
+      return [];
+    }
+    return dataNode.class.split(' ').filter(name => name !== '').map(name => 'connection-'+name);
+  }
+
+  connectionTargetAt(e_pos_x, e_pos_y) {
+    const ele = document.elementFromPoint(e_pos_x, e_pos_y);
+    if(!ele || !this.container.contains(ele)) {
+      return null;
+    }
+    const node = ele.closest(".drawflow-node");
+    if(!node || node === this.ele_selected.parentElement.parentElement) {
+      return null;
+    }
+    // Dropping connects only on an input, or anywhere on the node with force_first_input
+    if(ele.classList[0] !== 'input' && !(this.force_first_input && this.firstInputClass(node.id.slice(5)) !== false)) {
+      return null;
+    }
+    return node;
+  }
+
+  setConnectionTarget(node) {
+    if(this.connection_target === node) {
+      return;
+    }
+    if(this.connection_target) {
+      this.connection_target.classList.remove(this.connection_target_class);
+    }
+    if(node) {
+      node.classList.add(this.connection_target_class);
+    }
+    this.connection_target = node;
+  }
+
   dblclick(e) {
     if(this.connection_selected != null && this.reroute) {
         this.createReroutePoint(this.connection_selected);
@@ -1217,6 +1258,9 @@ export default class Drawflow {
       const output = document.createElement('div');
       output.classList.add("output");
       output.classList.add("output_"+(x+1));
+      if(classoverride != '') {
+        output.classList.add(...classoverride.split(' ').filter(name => name !== '').map(name => 'connection-'+name));
+      }
       json_outputs["output_"+(x+1)] = { "connections": []};
       outputs.appendChild(output);
     }
@@ -1310,6 +1354,7 @@ export default class Drawflow {
   }
 
   addNodeImport (dataNode, precanvas) {
+    const connectionClasses = this.connectionClassesFromNode.bind(this);
     const parent = document.createElement('div');
     parent.classList.add("parent-node");
 
@@ -1344,6 +1389,7 @@ export default class Drawflow {
         connection.classList.add("node_out_node-"+dataNode.inputs[input_item].connections[output_item].node);
         connection.classList.add(dataNode.inputs[input_item].connections[output_item].input);
         connection.classList.add(input_item);
+        connection.classList.add(...connectionClasses(dataNode.inputs[input_item].connections[output_item].node));
 
         connection.appendChild(path);
         precanvas.appendChild(connection);
@@ -1355,6 +1401,7 @@ export default class Drawflow {
       const output = document.createElement('div');
       output.classList.add("output");
       output.classList.add("output_"+(x+1));
+      output.classList.add(...connectionClasses(dataNode.id));
       outputs.appendChild(output);
     }
 

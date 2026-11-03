@@ -169,7 +169,7 @@ Parameter | Type | Default | Description
 `reroute_curvature` | Number | 0.5 | Curvature reroute
 `reroute_width` | Number | 6 | Width of reroute
 `line_path` | Number | 5 | Width of line
-`force_first_input` | Boolean | false | Force the first input to drop the connection on top of the node
+`force_first_input` | Boolean | false | Dropping a connection anywhere on a node connects it to the node's first input
 `editor_mode` | Text | `edit` | `edit` for edit, `fixed` for nodes fixed but their input fields available, `view` for view only
 `zoom` | Number | 1 | Default zoom
 `zoom_max` | Number | 1.6 | Default zoom max
@@ -178,6 +178,7 @@ Parameter | Type | Default | Description
 `zoom_last_value` | Number | 1 | Default zoom last value
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
+`connection_target_class` | Text | `connection-target` | Class added to the node under the pointer while dragging a connection, when releasing there creates the connection (on an input, or anywhere on the node with `force_first_input`)
 
 ### Reroute
 Active reroute connections. Use before `start` or `import`.
@@ -397,9 +398,18 @@ Example of exported data:
 
 ```
 
+### Connection classes
+
+- Each connection, and each output port, gets `connection-<class>` for every class of its source node. Ex: a node with class `query` gives `connection-query`, so lines of each node type can have their own color.
+
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
 There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
+
+## Credits
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
+
+- Connection classes by source node type, highlight of the target node while dragging a connection: idea and first code by Mouhamed Assafiri / Mo-WW ([mofolo/Drawflow](https://github.com/mofolo/Drawflow)).
 
 ## License
 MIT License
