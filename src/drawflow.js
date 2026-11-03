@@ -51,7 +51,10 @@ export default class Drawflow {
   }
 
   start () {
-    // console.info("Start Drawflow!!");
+    if(this.precanvas) {
+      // Already started: binding events again would fire every event twice
+      return;
+    }
     this.container.classList.add("parent-drawflow");
     this.container.tabIndex = 0;
     this.precanvas = document.createElement('div');
