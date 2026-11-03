@@ -15,6 +15,8 @@ Installing only a javascript library and with four lines of code.
 
 ⭐ [LIVE DEMO](https://jerosoler.github.io/Drawflow/)
 
+📖 [MANUAL](docs/MANUAL.md): what Drawflow can do and how the pieces fit together
+
 🎨 [THEME EDIT GENERATOR](https://jerosoler.github.io/drawflow-theme-generator/)
 
 ## Table of contents
@@ -24,6 +26,7 @@ Installing only a javascript library and with four lines of code.
 - [Mouse and  Keys](#mouse-and-keys)
 - [Editor](#editor)
   - [Options](#editor-options)
+  - [Reroute](#reroute)
 - [Modules](#modules)
 - [Nodes](#nodes)
   - [Node example](#node-example)
@@ -35,6 +38,7 @@ Installing only a javascript library and with four lines of code.
 - [Export / Import](#export-/-import)
   - [Export example](#export-example)
 - [Example](#example)
+- [Manual](docs/MANUAL.md)
 - [License](#license)
 
 ## Features
@@ -107,7 +111,7 @@ editor.start();
 ```
 Parameter | Type | Description
 --- | --- | ---
-`id` | Object | Name of module
+`id` | Object | Container element of the editor
 `render` | Object | It's for `Vue`.
 `parent` | Object | It's for `Vue`. The parent Instance
 
@@ -140,16 +144,18 @@ build: {
 ```
 
 ## Mouse and  Keys
-- `del key` to remove element.
+- `Delete` key (`Cmd + Backspace` on Mac) to remove the selected node or connection.
 - `Right click` to show remove options (Mobile long press).
 - `Left click press` to move editor or node selected.
 - `Ctrl + Mouse Wheel` Zoom in/out (Mobile pinch).
+- `Double click` on a selected connection adds a reroute point; on a point, removes it (with `reroute`).
 
 ## Editor
 You can change the editor to **fixed** type to block. Only editor can be moved. You can put it before start.
 ```javascript
 editor.editor_mode = 'edit'; // Default
 editor.editor_mode = 'fixed'; // Only scroll
+editor.editor_mode = 'view'; // Only scroll and zoom, nothing can be changed
 ```
 You can also adjust the zoom values.
 ```javascript
@@ -169,7 +175,7 @@ Parameter | Type | Default | Description
 `backward_offset` | Number | 60 | Distance the loop goes out of the output / into the input
 `backward_depth` | Number | 80 | Distance the loop goes below the lowest port (nodes on the same row)
 `backward_row_gap` | Number | 120 | Vertical distance from which the loop crosses between rows instead of going below
-`reroute_curvature_start_end` | Number | 0.5 | Curvature reroute first point and las point
+`reroute_curvature_start_end` | Number | 0.5 | Curvature reroute first point and last point
 `reroute_curvature` | Number | 0.5 | Curvature reroute
 `reroute_width` | Number | 6 | Width of reroute
 `line_path` | Number | 5 | Width of line
@@ -213,23 +219,23 @@ editor.changeModule('Home');
 ## Nodes
 Adding a node is simple.
 ```javascript
-editor.addNode(name, inputs, outputs, posx, posy, class, data, html);
+editor.addNode(name, inputs, outputs, posx, posy, class, data, html, typenode);
 ```
 Parameter | Type | Description
 --- | --- | ---
-`name` | text | Name of module
-`inputs` | number | Number of de inputs
-`outputs` | number | Number of de outputs
+`name` | text | Name of the node (not unique)
+`inputs` | number | Number of inputs
+`outputs` | number | Number of outputs
 `pos_x` | number | Position on start node left
 `pos_y` | number | Position on start node top
-`class` | text | Added classname to de node. Multiple classnames separated by space
+`class` | text | Class names added to the node, separated by space
 `data` | json | Data passed to node
 `html` | text | HTML drawn on node or `name` of register node.
 `typenode` | boolean & text | Default `false`, `true` for Object HTML, `vue` for vue
 
 You can use the attribute `df-*` in **inputs, textarea or select** to synchronize with the node data and **contenteditable**.
 
-Atrributs multiples parents support `df-*-*...`
+Nested keys use dashes: `df-config-url` is `data.config.url`.
 
 ### Node example
 ```javascript
@@ -259,7 +265,7 @@ editor.addNode('github', 0, 1, 150, 300, 'github', data, 'name', 'vue');
 
 Parameter | Type | Description
 --- | --- | ---
-`name` | text | Name of module registered.
+`name` | text | Name of the registered node.
 `html` | text | HTML to drawn or `vue` component.
 `props` | json | Only for `vue`. Props of component. `Not Required`
 `options` | json | Only for `vue`. Options of component. `Not Required`
@@ -271,10 +277,11 @@ Other available functions.
 
 Node ids are accepted as `5`, `'5'` or `'node-5'` in all methods.
 
-Mehtod | Description
+Method | Description
 --- | ---
 `zoom_in()` | Increment zoom +0.1
 `zoom_out()` | Decrement zoom -0.1
+`zoom_reset()` | Zoom back to 1
 `setZoom(value)` | Set zoom, limited to `zoom_min` and `zoom_max`. Ex: `0.8`
 `setCanvasPosition(x, y)` | Move (pan) the editor canvas. Ex: `0, 0`
 `setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
@@ -295,6 +302,9 @@ Mehtod | Description
 `getModuleFromNodeId(id)` | Get name of module where is the id. Ex id: `5`
 `clearModuleSelected()` | Clear data of module selected
 `clear()` | Clear all data of all modules and modules remove.
+`removeConnection()` | Remove the selected connection
+`export()` | Return a copy of all data
+`import(data, notifi)` | Replace all data and draw the current module. With `notifi` `false`, the `import` event is not fired
 
 ### Methods example
 
@@ -309,6 +319,8 @@ editor.connection_validator = ({ output_id, input_id }) => output_id !== input_i
 
 ## Events
 You can detect events that are happening.
+
+Stop listening with `editor.removeListener(event, callback)`. `editor.dispatch(event, details)` fires an event, also with your own names.
 
 List of available events:
 
