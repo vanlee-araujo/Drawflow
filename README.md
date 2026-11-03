@@ -180,6 +180,9 @@ Parameter | Type | Default | Description
 `observe_node_resize` | Boolean | true | Redraw the connections of a node when its size changes (content loaded later, fonts, hidden tab). Set before `start()`
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
+`connection_arrow` | Text | `none` | Arrow on connections: `none`, `end` (pointing into the input), `start` (pointing into the output) or `both`. Change it later with `setConnectionArrow`
+`connection_arrow_size` | Number | 14 | Arrow length and width
+`connection_arrow_offset` | Number | 12 | Distance from the port center to the arrow tip, so the tip stays outside the port. Use half of your port size (with border)
 `connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
 
 ### Reroute
@@ -269,6 +272,7 @@ Mehtod | Description
 `setZoom(value)` | Set zoom, limited to `zoom_min` and `zoom_max`. Ex: `0.8`
 `setCanvasPosition(x, y)` | Move (pan) the editor canvas. Ex: `0, 0`
 `setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
+`setConnectionArrow(arrow, size, offset)` | Change arrows of all connections. Ex: `'both'` or `'end', 16, 9`
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -410,6 +414,17 @@ Example of exported data:
 }
 
 ```
+
+### Arrows
+
+```javascript
+editor.connection_arrow = 'end';           // before editor.start()
+editor.start();
+
+editor.setConnectionArrow('start');        // swap: arrows point into the outputs
+```
+
+- The arrow takes the color of its line, also on hover and when selected (`fill: context-stroke`). Browsers without `context-stroke` (Safari) use the fallback color: `.drawflow-arrow { fill: steelblue; }`. Set it to your line color.
 
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
