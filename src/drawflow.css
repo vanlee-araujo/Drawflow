@@ -108,6 +108,33 @@
   fill: #1266ab;
 }
 
+/* connection_direction = 'vertical': inputs on top, outputs at the bottom */
+.drawflow-vertical .drawflow .drawflow-node {
+  flex-direction: column;
+  align-items: stretch;
+}
+.drawflow-vertical .drawflow .drawflow-node .inputs, .drawflow-vertical .drawflow .drawflow-node .outputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  width: auto;
+  height: 0;
+}
+.drawflow-vertical .drawflow .drawflow-node .input, .drawflow-vertical .drawflow .drawflow-node .output {
+  margin-bottom: 0;
+}
+.drawflow-vertical .drawflow .drawflow-node .input {
+  left: 0;
+  top: -28px;
+}
+.drawflow-vertical .drawflow .drawflow-node .output {
+  right: 0;
+  top: 4px;
+}
+.drawflow-vertical .drawflow .drawflow-node .outputs {
+  margin-top: auto;
+}
+
 .drawflow .main-path {
   fill: none;
   stroke-width: 5px;

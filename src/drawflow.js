@@ -32,6 +32,8 @@ export default class Drawflow {
     this.draggable_inputs = true;
     this.useuuid = false;
     this.parent = parent;
+    // 'horizontal': outputs on the right, inputs on the left. 'vertical': inputs on top, outputs at the bottom
+    this.connection_direction = 'horizontal';
 
     this.noderegister = {};
     this.render = render;
@@ -57,6 +59,7 @@ export default class Drawflow {
     this.precanvas = document.createElement('div');
     this.precanvas.classList.add("drawflow");
     this.container.appendChild(this.precanvas);
+    this.container.classList.toggle("drawflow-vertical", this.connection_direction === 'vertical');
 
     /* Mouse and Touch Actions */
     this.container.addEventListener('mouseup', this.dragEnd.bind(this));
@@ -608,6 +611,15 @@ export default class Drawflow {
   }
 
   createCurvature(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
+    if(this.connection_direction === 'vertical') {
+      // Same curve with the axes swapped: leaves the output downwards and enters the input from above
+      var swapped = this.createCurvatureHorizontal(start_pos_y, start_pos_x, end_pos_y, end_pos_x, curvature_value, type);
+      return swapped.replace(/(-?[\d.e+-]+)\s+(-?[\d.e+-]+)/g, '$2 $1');
+    }
+    return this.createCurvatureHorizontal(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type);
+  }
+
+  createCurvatureHorizontal(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
     var line_x = start_pos_x;
     var line_y = start_pos_y;
     var x = end_pos_x;
@@ -1052,6 +1064,16 @@ export default class Drawflow {
 
       }
     })
+  }
+
+  setConnectionDirection(direction) {
+    this.connection_direction = direction;
+    if(this.precanvas) {
+      this.container.classList.toggle("drawflow-vertical", direction === 'vertical');
+      for(var key in this.drawflow.drawflow[this.module].data) {
+        this.updateConnectionNodes('node-'+key);
+      }
+    }
   }
 
   dblclick(e) {

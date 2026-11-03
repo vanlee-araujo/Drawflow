@@ -178,6 +178,7 @@ Parameter | Type | Default | Description
 `zoom_last_value` | Number | 1 | Default zoom last value
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
+`connection_direction` | Text | `horizontal` | `horizontal`: inputs on the left, outputs on the right. `vertical`: inputs on top, outputs at the bottom, curves leave and enter vertically. Change it later with `setConnectionDirection`
 
 ### Reroute
 Active reroute connections. Use before `start` or `import`.
@@ -261,6 +262,7 @@ Mehtod | Description
 --- | ---
 `zoom_in()` | Increment zoom +0.1
 `zoom_out()` | Decrement zoom -0.1
+`setConnectionDirection(direction)` | Change direction and redraw connections. Ex: `'vertical'`
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -396,6 +398,17 @@ Example of exported data:
 }
 
 ```
+
+### Direction
+
+```javascript
+editor.connection_direction = 'vertical';
+editor.start();
+
+editor.setConnectionDirection('horizontal');
+```
+
+- With `connection_direction = 'vertical'` the container gets the class `drawflow-vertical`. If you restyle ports, keep inputs on the top border and outputs on the bottom border.
 
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
