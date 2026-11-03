@@ -176,6 +176,7 @@ Parameter | Type | Default | Description
 `zoom_min` | Number | 0.5 | Default zoom min
 `zoom_value` | Number | 0.1 | Default zoom value update
 `zoom_last_value` | Number | 1 | Default zoom last value
+`zoom_use_ctrl_key` | Boolean | true | Mouse wheel zooms only with the ctrl key pressed. `false` zooms with the wheel alone
 `observe_node_resize` | Boolean | true | Redraw the connections of a node when its size changes (content loaded later, fonts, hidden tab). Set before `start()`
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
@@ -425,6 +426,7 @@ Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some
 - Delete button with the `✕` symbol: Urban Sanden ([urre/Drawflow](https://github.com/urre/Drawflow), PR #666).
 - Reuse of `contextmenuDel()`: Filip Chytil ([filchy](https://github.com/filchy), PR #579).
 - `moduleChanged` after the module is drawn and the new `moduleChanging`: Wayne Ellis ([codemwnci](https://github.com/codemwnci), PR #683).
+- `zoom_use_ctrl_key` option: ftab ([eviltik](https://github.com/eviltik), PR #648).
 
 ## License
 MIT License
