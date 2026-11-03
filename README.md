@@ -165,6 +165,10 @@ Parameter | Type | Default | Description
 `reroute` | Boolean | false | Active reroute
 `reroute_fix_curvature` | Boolean | false | Fix adding points
 `curvature` | Number | 0.5 | Curvature
+`curvature_backward` | Boolean | false | Connection to a node behind the output (on the left; above in vertical) is drawn as a loop around the nodes
+`backward_offset` | Number | 60 | Distance the loop goes out of the output / into the input
+`backward_depth` | Number | 80 | Distance the loop goes below the lowest port (nodes on the same row)
+`backward_row_gap` | Number | 120 | Vertical distance from which the loop crosses between rows instead of going below
 `reroute_curvature_start_end` | Number | 0.5 | Curvature reroute first point and las point
 `reroute_curvature` | Number | 0.5 | Curvature reroute
 `reroute_width` | Number | 6 | Width of reroute
@@ -447,6 +451,7 @@ Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some
 - Reuse of `contextmenuDel()`: Filip Chytil ([filchy](https://github.com/filchy), PR #579).
 - `moduleChanged` after the module is drawn and the new `moduleChanging`: Wayne Ellis ([codemwnci](https://github.com/codemwnci), PR #683).
 - `zoom_use_ctrl_key` option: ftab ([eviltik](https://github.com/eviltik), PR #648).
+- Loop for connections to a node behind the output: Guillermo Gefaell ([konum](https://github.com/konum), PR #947).
 
 ## License
 MIT License

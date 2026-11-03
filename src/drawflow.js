@@ -21,6 +21,11 @@ export default class Drawflow {
     this.reroute = false;
     this.reroute_fix_curvature = false;
     this.curvature = 0.5;
+    // Connection to a node behind the output (left; above in vertical) drawn as a loop around the nodes
+    this.curvature_backward = false;
+    this.backward_offset = 60;
+    this.backward_depth = 80;
+    this.backward_row_gap = 120;
     this.reroute_curvature_start_end = 0.5;
     this.reroute_curvature = 0.5;
     this.reroute_width = 6;
@@ -726,6 +731,9 @@ export default class Drawflow {
         return ' M '+ line_x +' '+ line_y +' C '+ hx1 +' '+ line_y +' '+ hx2 +' ' + y +' ' + x +'  ' + y;
         break;
       default:
+        if(this.curvature_backward && end_pos_x < start_pos_x) {
+          return this.createBackwardCurvature(start_pos_x, start_pos_y, end_pos_x, end_pos_y);
+        }
 
         var hx1 = line_x + Math.abs(x - line_x) * curvature;
         var hx2 = x - Math.abs(x - line_x) * curvature;
@@ -733,6 +741,20 @@ export default class Drawflow {
         return ' M '+ line_x +' '+ line_y +' C '+ hx1 +' '+ line_y +' '+ hx2 +' ' + y +' ' + x +'  ' + y;
     }
 
+  }
+
+  // Connection to a node on the left: loop out to the right, around and into the input from the left
+  createBackwardCurvature(start_pos_x, start_pos_y, end_pos_x, end_pos_y) {
+    const dx = start_pos_x - end_pos_x;
+    const mid_x = (start_pos_x + end_pos_x) / 2;
+    // Different rows: cross through the gap. Same row: pass below, deeper when longer so loops don't overlap
+    const mid_y = Math.abs(end_pos_y - start_pos_y) >= this.backward_row_gap
+      ? (start_pos_y + end_pos_y) / 2
+      : Math.max(start_pos_y, end_pos_y) + this.backward_depth + dx * 0.1;
+    const out_x = start_pos_x + this.backward_offset;
+    const in_x = end_pos_x - this.backward_offset;
+    return ' M '+ start_pos_x +' '+ start_pos_y +' C '+ out_x +' '+ start_pos_y +' '+ out_x +' '+ mid_y +' '+ mid_x +' '+ mid_y +
+           ' C '+ in_x +' '+ mid_y +' '+ in_x +' '+ end_pos_y +' '+ end_pos_x +' '+ end_pos_y;
   }
 
   drawConnection(ele) {
