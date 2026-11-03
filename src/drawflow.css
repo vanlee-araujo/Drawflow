@@ -108,6 +108,18 @@
   fill: #1266ab;
 }
 
+.drawflow-markers {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+/* Arrow takes the color of its line (hover and selected included) */
+.drawflow-arrow {
+  fill: steelblue;
+  fill: context-stroke;
+  stroke: none;
+}
+
 .drawflow .main-path {
   fill: none;
   stroke-width: 5px;

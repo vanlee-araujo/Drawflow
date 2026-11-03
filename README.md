@@ -178,6 +178,9 @@ Parameter | Type | Default | Description
 `zoom_last_value` | Number | 1 | Default zoom last value
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
+`connection_arrow` | Text | `none` | Arrow on connections: `none`, `end` (pointing into the input), `start` (pointing into the output) or `both`. Change it later with `setConnectionArrow`
+`connection_arrow_size` | Number | 14 | Arrow length and width
+`connection_arrow_offset` | Number | 12 | Distance from the port center to the arrow tip, so the tip stays outside the port. Use half of your port size (with border)
 
 ### Reroute
 Active reroute connections. Use before `start` or `import`.
@@ -261,6 +264,7 @@ Mehtod | Description
 --- | ---
 `zoom_in()` | Increment zoom +0.1
 `zoom_out()` | Decrement zoom -0.1
+`setConnectionArrow(arrow, size, offset)` | Change arrows of all connections. Ex: `'both'` or `'end', 16, 9`
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -396,6 +400,17 @@ Example of exported data:
 }
 
 ```
+
+### Arrows
+
+```javascript
+editor.connection_arrow = 'end';           // before editor.start()
+editor.start();
+
+editor.setConnectionArrow('start');        // swap: arrows point into the outputs
+```
+
+- The arrow takes the color of its line, also on hover and when selected (`fill: context-stroke`). Browsers without `context-stroke` (Safari) use the fallback color: `.drawflow-arrow { fill: steelblue; }`. Set it to your line color.
 
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
