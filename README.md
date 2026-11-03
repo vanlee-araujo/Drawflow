@@ -176,6 +176,7 @@ Parameter | Type | Default | Description
 `zoom_min` | Number | 0.5 | Default zoom min
 `zoom_value` | Number | 0.1 | Default zoom value update
 `zoom_last_value` | Number | 1 | Default zoom last value
+`observe_node_resize` | Boolean | true | Redraw the connections of a node when its size changes (content loaded later, fonts, hidden tab). Set before `start()`
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
 `connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it

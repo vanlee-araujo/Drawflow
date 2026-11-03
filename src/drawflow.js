@@ -46,6 +46,9 @@ export default class Drawflow {
     // Optional: function({ output_id, input_id, output_class, input_class }) => boolean.
     // Returning false blocks the connection (mouse or addConnection).
     this.connection_validator = null;
+    // Redraw connections when a node changes size (content loaded later, fonts, hidden tab)
+    this.observe_node_resize = true;
+    this.resize_observer = null;
 
     this.noderegister = {};
     this.render = render;
@@ -105,6 +108,15 @@ export default class Drawflow {
     };
     window.addEventListener('mousemove', this.window_mousemove);
     window.addEventListener('mouseup', this.window_mouseup);
+    if(this.observe_node_resize && typeof ResizeObserver !== 'undefined') {
+      this.resize_observer = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+          if(entry.target.isConnected) {
+            this.updateConnectionNodes(entry.target.id);
+          }
+        });
+      });
+    }
     /* Mobile zoom */
     this.container.onpointerdown = this.pointerdown_handler.bind(this);
     this.container.onpointermove = this.pointermove_handler.bind(this);
@@ -1367,6 +1379,9 @@ export default class Drawflow {
     node.style.left = ele_pos_x + "px";
     parent.appendChild(node);
     this.precanvas.appendChild(parent);
+    if(this.resize_observer) {
+      this.resize_observer.observe(node);
+    }
     var json = {
       id: newNodeId,
       name: name,
@@ -1504,6 +1519,9 @@ export default class Drawflow {
     node.style.left = dataNode.pos_x + "px";
     parent.appendChild(node);
     this.precanvas.appendChild(parent);
+    if(this.resize_observer) {
+      this.resize_observer.observe(node);
+    }
   }
 
   addRerouteImport(dataNode) {
@@ -1805,7 +1823,11 @@ export default class Drawflow {
     this.removeConnectionNodeId(id);
     var moduleName = this.getModuleFromNodeId(id.slice(5))
     if(this.module === moduleName) {
-      this.container.querySelector(`#${id}`).remove();
+      const node = this.container.querySelector(`#${id}`);
+      if(this.resize_observer) {
+        this.resize_observer.unobserve(node);
+      }
+      node.remove();
     }
     delete this.drawflow.drawflow[moduleName].data[id.slice(5)];
     this.dispatch('nodeRemoved', id.slice(5));
@@ -1922,11 +1944,17 @@ export default class Drawflow {
   }
 
   clearModuleSelected() {
+    if(this.resize_observer) {
+      this.resize_observer.disconnect();
+    }
     this.precanvas.innerHTML = "";
     this.drawflow.drawflow[this.module] =  { "data": {} };
   }
 
   clear () {
+    if(this.resize_observer) {
+      this.resize_observer.disconnect();
+    }
     this.precanvas.innerHTML = "";
     this.drawflow = { "drawflow": { "Home": { "data": {} }}};
   }
