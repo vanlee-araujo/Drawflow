@@ -318,7 +318,8 @@ Event | Return | Description
   `removeReroute` | id | `id` of Node output
   `rerouteMoved` | id | `id` of Node output
   `moduleCreated` | name | `name` of Module
-  `moduleChanged` | name | `name` of Module
+  `moduleChanging` | name | `name` of Module, before the change
+  `moduleChanged` | name | `name` of Module, after the module is drawn
   `moduleRemoved` | name | `name` of Module
   `click` | event | Click event
   `clickEnd` | event | Once the click changes have been made
@@ -423,6 +424,7 @@ Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some
 - Dragging outside the container: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
 - Delete button with the `✕` symbol: Urban Sanden ([urre/Drawflow](https://github.com/urre/Drawflow), PR #666).
 - Reuse of `contextmenuDel()`: Filip Chytil ([filchy](https://github.com/filchy), PR #579).
+- `moduleChanged` after the module is drawn and the new `moduleChanging`: Wayne Ellis ([codemwnci](https://github.com/codemwnci), PR #683).
 
 ## License
 MIT License
