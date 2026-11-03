@@ -996,23 +996,6 @@ export default class Drawflow {
         points.forEach((item, i) => {
           if(i === 0 && ((points.length -1) === 0)) {
 
-            var elemtsearchId_out = container.querySelector(`#${id}`);
-            var elemtsearch = item;
-
-            var line_x = (elemtsearch.getBoundingClientRect().x - precanvas.getBoundingClientRect().x ) * precanvasWitdhZoom + rerouteWidth;
-            var line_y = (elemtsearch.getBoundingClientRect().y - precanvas.getBoundingClientRect().y ) * precanvasHeightZoom +rerouteWidth;
-
-            var elemtsearchIn = elemtsearchId_out.querySelectorAll('.'+item.parentElement.classList[4])[0]
-            var eX =  elemtsearchIn.offsetWidth/2 + (elemtsearchIn.getBoundingClientRect().x - precanvas.getBoundingClientRect().x ) * precanvasWitdhZoom;
-            var eY =  elemtsearchIn.offsetHeight/2 + (elemtsearchIn.getBoundingClientRect().y - precanvas.getBoundingClientRect().y ) * precanvasHeightZoom;
-
-            var x = eX;
-            var y = eY;
-
-            var lineCurveSearch = createCurvature(line_x, line_y, x, y, reroute_curvature_start_end, 'close');
-            linecurve += lineCurveSearch;
-            reoute_fix.push(lineCurveSearch);
-
             var elemtsearchId_out = item;
             var id_search = item.parentElement.classList[2].replace('node_out_', '');
             var elemtsearchId = container.querySelector(`#${id_search}`);
@@ -1031,6 +1014,22 @@ export default class Drawflow {
             linecurve += lineCurveSearch;
             reoute_fix.push(lineCurveSearch);
 
+            var elemtsearchId_out = container.querySelector(`#${id}`);
+            var elemtsearch = item;
+
+            var line_x = (elemtsearch.getBoundingClientRect().x - precanvas.getBoundingClientRect().x ) * precanvasWitdhZoom + rerouteWidth;
+            var line_y = (elemtsearch.getBoundingClientRect().y - precanvas.getBoundingClientRect().y ) * precanvasHeightZoom +rerouteWidth;
+
+            var elemtsearchIn = elemtsearchId_out.querySelectorAll('.'+item.parentElement.classList[4])[0]
+            var eX =  elemtsearchIn.offsetWidth/2 + (elemtsearchIn.getBoundingClientRect().x - precanvas.getBoundingClientRect().x ) * precanvasWitdhZoom;
+            var eY =  elemtsearchIn.offsetHeight/2 + (elemtsearchIn.getBoundingClientRect().y - precanvas.getBoundingClientRect().y ) * precanvasHeightZoom;
+
+            var x = eX;
+            var y = eY;
+
+            var lineCurveSearch = createCurvature(line_x, line_y, x, y, reroute_curvature_start_end, 'close');
+            linecurve += lineCurveSearch;
+            reoute_fix.push(lineCurveSearch);
 
           } else if(i === 0) {
             // FIRST
