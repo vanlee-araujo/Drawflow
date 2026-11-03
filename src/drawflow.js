@@ -332,6 +332,8 @@ export default class Drawflow {
     }
     if (['input','output','main-path'].includes(this.ele_selected.classList[0])) {
       e.preventDefault();
+      // preventDefault also stops the focus: without it the Delete key does not reach the editor
+      this.container.focus({ preventScroll: true });
     }
     this.dispatch('clickEnd', e);
   }
