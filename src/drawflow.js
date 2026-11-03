@@ -404,7 +404,7 @@ export default class Drawflow {
 
       const nodeId = nodeUpdate.slice(5);
       const searchConnection = this.drawflow.drawflow[this.module].data[nodeId].outputs[output_class].connections.findIndex(function(item,i) {
-        return item.node ===  nodeUpdateIn && item.output === input_class;
+        return String(item.node) === String(nodeUpdateIn) && item.output === input_class;
       });
 
       this.drawflow.drawflow[this.module].data[nodeId].outputs[output_class].connections[searchConnection].points[numberPointPosition] = { pos_x: pos_x, pos_y: pos_y };
@@ -1124,7 +1124,7 @@ export default class Drawflow {
 
       const nodeId = nodeUpdate.slice(5);
       const searchConnection = this.drawflow.drawflow[this.module].data[nodeId].outputs[output_class].connections.findIndex(function(item,i) {
-        return item.node ===  nodeUpdateIn && item.output === input_class;
+        return String(item.node) === String(nodeUpdateIn) && item.output === input_class;
       });
 
       if(this.drawflow.drawflow[this.module].data[nodeId].outputs[output_class].connections[searchConnection].points === undefined)  {
@@ -1160,7 +1160,7 @@ export default class Drawflow {
     let numberPointPosition = Array.from(ele.parentElement.children).indexOf(ele);
     const nodeId = nodeUpdate.slice(5);
     const searchConnection = this.drawflow.drawflow[this.module].data[nodeId].outputs[output_class].connections.findIndex(function(item,i) {
-      return item.node ===  nodeUpdateIn && item.output === input_class;
+      return String(item.node) === String(nodeUpdateIn) && item.output === input_class;
     });
 
     if(this.reroute_fix_curvature) {
@@ -1761,20 +1761,26 @@ export default class Drawflow {
     this.dispatch('nodeRemoved', id.slice(5));
   }
 
+  // Removes one connection from both sides of the data. Ids are compared as text: imported data may use numbers
+  removeConnectionData(moduleName, id_output, output_class, id_input, input_class) {
+    const data = this.drawflow.drawflow[moduleName].data;
+    const outputs = data[id_output] && data[id_output].outputs[output_class] ? data[id_output].outputs[output_class].connections : [];
+    const index_out = outputs.findIndex(item => String(item.node) === String(id_input) && item.output === input_class);
+    if(index_out > -1) {
+      outputs.splice(index_out, 1);
+    }
+    const inputs = data[id_input] && data[id_input].inputs[input_class] ? data[id_input].inputs[input_class].connections : [];
+    const index_in = inputs.findIndex(item => String(item.node) === String(id_output) && item.input === output_class);
+    if(index_in > -1) {
+      inputs.splice(index_in, 1);
+    }
+  }
+
   removeConnection() {
     if(this.connection_selected != null) {
       var listclass = this.connection_selected.parentElement.classList;
       this.connection_selected.parentElement.remove();
-      //console.log(listclass);
-      var index_out = this.drawflow.drawflow[this.module].data[listclass[2].slice(14)].outputs[listclass[3]].connections.findIndex(function(item,i) {
-        return item.node === listclass[1].slice(13) && item.output === listclass[4]
-      });
-      this.drawflow.drawflow[this.module].data[listclass[2].slice(14)].outputs[listclass[3]].connections.splice(index_out,1);
-
-      var index_in = this.drawflow.drawflow[this.module].data[listclass[1].slice(13)].inputs[listclass[4]].connections.findIndex(function(item,i) {
-        return item.node === listclass[2].slice(14) && item.input === listclass[3]
-      });
-      this.drawflow.drawflow[this.module].data[listclass[1].slice(13)].inputs[listclass[4]].connections.splice(index_in,1);
+      this.removeConnectionData(this.module, listclass[2].slice(14), listclass[3], listclass[1].slice(13), listclass[4]);
       this.dispatch('connectionRemoved', { output_id: listclass[2].slice(14), input_id: listclass[1].slice(13), output_class: listclass[3], input_class: listclass[4] } );
       this.connection_selected = null;
     }
@@ -1797,15 +1803,7 @@ export default class Drawflow {
           this.container.querySelector('.connection.node_in_node-'+id_input+'.node_out_node-'+id_output+'.'+output_class+'.'+input_class).remove();
         }
 
-        var index_out = this.drawflow.drawflow[nodeOneModule].data[id_output].outputs[output_class].connections.findIndex(function(item,i) {
-          return item.node == id_input && item.output === input_class
-        });
-        this.drawflow.drawflow[nodeOneModule].data[id_output].outputs[output_class].connections.splice(index_out,1);
-
-        var index_in = this.drawflow.drawflow[nodeOneModule].data[id_input].inputs[input_class].connections.findIndex(function(item,i) {
-          return item.node == id_output && item.input === output_class
-        });
-        this.drawflow.drawflow[nodeOneModule].data[id_input].inputs[input_class].connections.splice(index_in,1);
+        this.removeConnectionData(nodeOneModule, id_output, output_class, id_input, input_class);
 
         this.dispatch('connectionRemoved', { output_id: id_output, input_id: id_input, output_class:  output_class, input_class: input_class});
         return true;
@@ -1819,45 +1817,11 @@ export default class Drawflow {
   }
 
   removeConnectionNodeId(id) {
-    const idSearchIn = 'node_in_'+id;
-    const idSearchOut = 'node_out_'+id;
-
-    const elemsOut = this.container.querySelectorAll(`.${idSearchOut}`);
-    for(var i = elemsOut.length-1; i >= 0; i--) {
-      var listclass = elemsOut[i].classList;
-
-      var index_in = this.drawflow.drawflow[this.module].data[listclass[1].slice(13)].inputs[listclass[4]].connections.findIndex(function(item,i) {
-        return item.node === listclass[2].slice(14) && item.input === listclass[3]
-      });
-      this.drawflow.drawflow[this.module].data[listclass[1].slice(13)].inputs[listclass[4]].connections.splice(index_in,1);
-
-      var index_out = this.drawflow.drawflow[this.module].data[listclass[2].slice(14)].outputs[listclass[3]].connections.findIndex(function(item,i) {
-        return item.node === listclass[1].slice(13) && item.output === listclass[4]
-      });
-      this.drawflow.drawflow[this.module].data[listclass[2].slice(14)].outputs[listclass[3]].connections.splice(index_out,1);
-
-      elemsOut[i].remove();
-
-      this.dispatch('connectionRemoved', { output_id: listclass[2].slice(14), input_id: listclass[1].slice(13), output_class: listclass[3], input_class: listclass[4] } );
-    }
-
-    const elemsIn = this.container.querySelectorAll(`.${idSearchIn}`);
-    for(var i = elemsIn.length-1; i >= 0; i--) {
-
-      var listclass = elemsIn[i].classList;
-
-      var index_out = this.drawflow.drawflow[this.module].data[listclass[2].slice(14)].outputs[listclass[3]].connections.findIndex(function(item,i) {
-        return item.node === listclass[1].slice(13) && item.output === listclass[4]
-      });
-      this.drawflow.drawflow[this.module].data[listclass[2].slice(14)].outputs[listclass[3]].connections.splice(index_out,1);
-
-      var index_in = this.drawflow.drawflow[this.module].data[listclass[1].slice(13)].inputs[listclass[4]].connections.findIndex(function(item,i) {
-        return item.node === listclass[2].slice(14) && item.input === listclass[3]
-      });
-      this.drawflow.drawflow[this.module].data[listclass[1].slice(13)].inputs[listclass[4]].connections.splice(index_in,1);
-
-      elemsIn[i].remove();
-
+    const elems = this.container.querySelectorAll(`.node_out_${id}, .node_in_${id}`);
+    for(var i = elems.length-1; i >= 0; i--) {
+      var listclass = elems[i].classList;
+      this.removeConnectionData(this.module, listclass[2].slice(14), listclass[3], listclass[1].slice(13), listclass[4]);
+      elems[i].remove();
       this.dispatch('connectionRemoved', { output_id: listclass[2].slice(14), input_id: listclass[1].slice(13), output_class: listclass[3], input_class: listclass[4] } );
     }
   }
