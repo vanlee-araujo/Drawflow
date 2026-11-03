@@ -1,3 +1,14 @@
+// df-* fields: checkbox and radio use checked, the others value
+function setFieldValue(ele, value) {
+  if(ele.type === 'checkbox') {
+    ele.checked = value === true || value === 'true' || value === 'on';
+  } else if(ele.type === 'radio') {
+    ele.checked = String(ele.value) === String(value);
+  } else {
+    ele.value = value;
+  }
+}
+
 export default class Drawflow {
   constructor(container, render = null, parent = null) {
     this.events = {};
@@ -1306,7 +1317,7 @@ export default class Drawflow {
       } else {
         var elems = content.querySelectorAll('[df-'+key[0]+']');
           for(var i = 0; i < elems.length; i++) {
-            elems[i].value = key[1];
+            setFieldValue(elems[i], key[1]);
             if(elems[i].isContentEditable) {
               elems[i].innerText = key[1];
             }
@@ -1327,7 +1338,7 @@ export default class Drawflow {
           } else {
             var elems = content.querySelectorAll('[df-'+completname+'-'+key[0]+']');
               for(var i = 0; i < elems.length; i++) {
-                elems[i].value = key[1];
+                setFieldValue(elems[i], key[1]);
                 if(elems[i].isContentEditable) {
                   elems[i].innerText = key[1];
                 }
@@ -1443,7 +1454,7 @@ export default class Drawflow {
       } else {
         var elems = content.querySelectorAll('[df-'+key[0]+']');
           for(var i = 0; i < elems.length; i++) {
-            elems[i].value = key[1];
+            setFieldValue(elems[i], key[1]);
             if(elems[i].isContentEditable) {
               elems[i].innerText = key[1];
             }
@@ -1464,7 +1475,7 @@ export default class Drawflow {
           } else {
             var elems = content.querySelectorAll('[df-'+completname+'-'+key[0]+']');
               for(var i = 0; i < elems.length; i++) {
-                elems[i].value = key[1];
+                setFieldValue(elems[i], key[1]);
                 if(elems[i].isContentEditable) {
                   elems[i].innerText = key[1];
                 }
@@ -1536,7 +1547,7 @@ export default class Drawflow {
                     }
                     target = target[keys[index]];
                 }
-                target[keys[keys.length - 1]] = event.target.value;
+                target[keys[keys.length - 1]] = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
                 if(event.target.isContentEditable) {
                   target[keys[keys.length - 1]] = event.target.innerText;
                 }
@@ -1558,7 +1569,7 @@ export default class Drawflow {
         } else {
           var elems = content.querySelectorAll('[df-'+key[0]+']');
             for(var i = 0; i < elems.length; i++) {
-              elems[i].value = key[1];
+              setFieldValue(elems[i], key[1]);
               if(elems[i].isContentEditable) {
                 elems[i].innerText = key[1];
               }
@@ -1579,7 +1590,7 @@ export default class Drawflow {
             } else {
               var elems = content.querySelectorAll('[df-'+completname+'-'+key[0]+']');
                 for(var i = 0; i < elems.length; i++) {
-                  elems[i].value = key[1];
+                  setFieldValue(elems[i], key[1]);
                   if(elems[i].isContentEditable) {
                     elems[i].innerText = key[1];
                   }
