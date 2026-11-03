@@ -183,6 +183,7 @@ Parameter | Type | Default | Description
 `connection_arrow` | Text | `none` | Arrow on connections: `none`, `end` (pointing into the input), `start` (pointing into the output) or `both`. Change it later with `setConnectionArrow`
 `connection_arrow_size` | Number | 14 | Arrow length and width
 `connection_arrow_offset` | Number | 12 | Distance from the port center to the arrow tip, so the tip stays outside the port. Use half of your port size (with border)
+`connection_direction` | Text | `horizontal` | `horizontal`: inputs on the left, outputs on the right. `vertical`: inputs on top, outputs at the bottom, curves leave and enter vertically. Change it later with `setConnectionDirection`
 `connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
 
 ### Reroute
@@ -273,6 +274,7 @@ Mehtod | Description
 `setCanvasPosition(x, y)` | Move (pan) the editor canvas. Ex: `0, 0`
 `setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
 `setConnectionArrow(arrow, size, offset)` | Change arrows of all connections. Ex: `'both'` or `'end', 16, 9`
+`setConnectionDirection(direction)` | Change direction and redraw connections. Ex: `'vertical'`
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -415,16 +417,19 @@ Example of exported data:
 
 ```
 
-### Arrows
+### Arrows and direction
 
 ```javascript
 editor.connection_arrow = 'end';           // before editor.start()
+editor.connection_direction = 'vertical';
 editor.start();
 
 editor.setConnectionArrow('start');        // swap: arrows point into the outputs
+editor.setConnectionDirection('horizontal');
 ```
 
 - The arrow takes the color of its line, also on hover and when selected (`fill: context-stroke`). Browsers without `context-stroke` (Safari) use the fallback color: `.drawflow-arrow { fill: steelblue; }`. Set it to your line color.
+- With `connection_direction = 'vertical'` the container gets the class `drawflow-vertical`. If you restyle ports, keep inputs on the top border and outputs on the bottom border.
 
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  

@@ -51,6 +51,8 @@ export default class Drawflow {
     this.connection_arrow_size = 14;
     // Distance from the port center to the arrow tip (default port: 20px + 2px border)
     this.connection_arrow_offset = 12;
+    // 'horizontal': outputs on the right, inputs on the left. 'vertical': inputs on top, outputs at the bottom
+    this.connection_direction = 'horizontal';
     this.arrow_marker_id = 'drawflow-arrow-' + Math.random().toString(36).slice(2, 10);
     // Redraw connections when a node changes size (content loaded later, fonts, hidden tab)
     this.observe_node_resize = true;
@@ -85,6 +87,7 @@ export default class Drawflow {
     this.precanvas.classList.add("drawflow");
     this.container.appendChild(this.precanvas);
     this.createArrowMarkers();
+    this.container.classList.toggle("drawflow-vertical", this.connection_direction === 'vertical');
 
     /* Mouse and Touch Actions */
     this.container.addEventListener('mouseup', this.dragEnd.bind(this));
@@ -675,6 +678,15 @@ export default class Drawflow {
   }
 
   createCurvature(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
+    if(this.connection_direction === 'vertical') {
+      // Same curve with the axes swapped: leaves the output downwards and enters the input from above
+      var swapped = this.createCurvatureHorizontal(start_pos_y, start_pos_x, end_pos_y, end_pos_x, curvature_value, type);
+      return swapped.replace(/(-?[\d.e+-]+)\s+(-?[\d.e+-]+)/g, '$2 $1');
+    }
+    return this.createCurvatureHorizontal(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type);
+  }
+
+  createCurvatureHorizontal(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
     var line_x = start_pos_x;
     var line_y = start_pos_y;
     var x = end_pos_x;
@@ -1194,6 +1206,16 @@ export default class Drawflow {
     if(this.precanvas) {
       this.createArrowMarkers();
       this.container.querySelectorAll('.connection').forEach(ele => this.updateConnectionArrows(ele));
+    }
+  }
+
+  setConnectionDirection(direction) {
+    this.connection_direction = direction;
+    if(this.precanvas) {
+      this.container.classList.toggle("drawflow-vertical", direction === 'vertical');
+      for(var key in this.drawflow.drawflow[this.module].data) {
+        this.updateConnectionNodes('node-'+key);
+      }
     }
   }
 
