@@ -418,6 +418,7 @@ Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some
 - Repair of duplicated and one-sided connections on import: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
 - Container classes other than the first one (issue #469): idea from pavlyuts ([pavlyuts](https://github.com/pavlyuts), PR #141).
 - Outputs with non-sequential names on import (issue #808): idea from Daniel Vidal Cussi ([danieldvc](https://github.com/danieldvc), PR #260).
+- Data keys with characters that are invalid in CSS selectors (ex. `,` and `|`): fix by yiiouo ([rni-l/Drawflow](https://github.com/rni-l/Drawflow), issue #336), extended to all characters with `CSS.escape`.
 
 ## License
 MIT License
