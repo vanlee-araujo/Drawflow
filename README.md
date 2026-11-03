@@ -59,6 +59,10 @@ Installing only a javascript library and with four lines of code.
 - Vanilla javascript (No dependencies)
 - NPM
 - Vue Support component nodes && Nuxt
+- Arrows on connections and vertical direction
+- Connection validation
+- Node position, zoom and pan from code
+- Connection classes by node type
 
 ## Installation
 Download or clone repository and copy the dist folder, CDN option Or npm.  

@@ -20,6 +20,11 @@ explains the concepts behind them.
 - [Styling: DOM structure and classes](#styling-dom-structure-and-classes)
 - [Customizing behavior](#customizing-behavior)
 - [Frameworks](#frameworks)
+- [Layout from code](#layout-from-code)
+- [Validating connections](#validating-connections)
+- [Arrows and direction](#arrows-and-direction)
+- [Styling connections by node type](#styling-connections-by-node-type)
+- [Robustness](#robustness)
 - [Known limitations](#known-limitations)
 
 ## What Drawflow is
@@ -187,7 +192,7 @@ argument; node ids come as text, except in `nodeCreated`, which gives the id ret
   `connectionRemoved`, `connectionSelected`, `connectionUnselected`. `addConnection` also fires
   `connectionCreated`; `import` fires only `import`.
 - **Reroute:** `addReroute`, `removeReroute`, `rerouteMoved`.
-- **Modules:** `moduleCreated`, `moduleChanged`, `moduleRemoved`.
+- **Modules:** `moduleCreated`, `moduleChanging`, `moduleChanged`, `moduleRemoved`.
 - **Editor:** `zoom`, `translate`, `import`, `export`, and the raw `click`, `clickEnd`,
   `contextmenu`, `mouseMove`, `mouseUp`, `keydown`.
 
@@ -221,8 +226,8 @@ div.parent-drawflow              ← your container
 - **Curves:** `createCurvature(start_x, start_y, end_x, end_y, curvature, type)` returns the SVG
   path of every line; replace it on the editor to draw other shapes. `type` is `openclose` for a
   whole line, or `open`, `close`, `other` for reroute segments.
-- **Validation:** listen to `connectionCreated` and call `removeSingleConnection` to undo what the
-  application does not accept; listen to `nodeRemoved`, `connectionRemoved` to keep your own
+- **Validation:** `connection_validator` blocks a connection before it exists (see
+  [Validating connections](#validating-connections)); listen to `nodeRemoved`, `connectionRemoved` to keep your own
   state.
 - **Your own events:** `dispatch` and `on` work with any name.
 
@@ -235,6 +240,58 @@ div.parent-drawflow              ← your container
   node `data`, or render your component into the node element after `nodeCreated`.
 - **TypeScript:** types are in the external package `@types/drawflow`.
 
+## Layout from code
+
+- `setNodePosition(id, x, y)` moves a node: its data, its element and its connections, and fires
+  `nodeMoved`. Use it for automatic layout (for example with [dagre](https://github.com/dagrejs/dagre)).
+- `setZoom(value)` sets the zoom inside `zoom_min` and `zoom_max`; `setCanvasPosition(x, y)` pans.
+  Together they fit a drawing on screen.
+- Node ids are accepted as `5`, `'5'` or `'node-5'` in every method.
+
+## Validating connections
+
+`connection_validator` is called before a connection is created, by the mouse or by
+`addConnection`, with `{ output_id, input_id, output_class, input_class }`. Returning `false`
+blocks it (the mouse gets `connectionCancel`). Typical rules: no cycles, one connection per input,
+only some node types together.
+
+```javascript
+editor.connection_validator = ({ output_id, input_id }) => !reaches(input_id, output_id); // no cycles
+```
+
+## Arrows and direction
+
+- `connection_arrow`: `'none'` (default), `'end'` (pointing into the input), `'start'` (pointing
+  into the output, to show the flow the other way) or `'both'`. `connection_arrow_size` and
+  `connection_arrow_offset` (distance from the port center to the tip; half of the port size)
+  adjust it; `setConnectionArrow(arrow, size, offset)` changes everything later.
+- The arrow takes the color of its line, also on hover and when selected. Safari has no
+  `context-stroke`: there the arrow uses `.drawflow-arrow { fill }`; set it to your line color.
+- `connection_direction = 'vertical'`: inputs on the top border, outputs on the bottom border, and
+  curves that leave and enter vertically. The container gets the class `drawflow-vertical`;
+  `setConnectionDirection(direction)` switches and redraws.
+- `curvature_backward = true` draws a connection to a node behind the output (on the left; above in
+  vertical) as a loop around the nodes, adjusted by `backward_offset`, `backward_depth` and
+  `backward_row_gap`.
+
+## Styling connections by node type
+
+Each connection, and each output port, gets `connection-<class>` for every class of its source
+node: a node with class `query` gives `.connection-query`. While a connection is dragged, the node
+where releasing connects gets `connection_target_class` (default `connection-target`, with a
+pulse in the default CSS).
+
+## Robustness
+
+- Connections of a node are redrawn when its size changes (content loaded later, fonts, a hidden
+  tab shown again): `observe_node_resize`, default `true`.
+- `import()` repairs the data: ids become text, duplicated connections are removed, and each
+  connection is kept on both sides. Data without the current module shows its first module.
+- Dragging keeps following the pointer outside the editor, and releasing outside ends it.
+- `start()` twice does nothing the second time.
+- `zoom_use_ctrl_key = false` zooms with the mouse wheel alone.
+- `moduleChanging` fires before a module change and `moduleChanged` after the module is drawn.
+
 ## Known limitations
 
 - Only the current module is drawn; there is no list of modules besides
@@ -242,5 +299,4 @@ div.parent-drawflow              ← your container
 - No undo, multi-selection, minimap or automatic layout.
 - Very large flows (thousands of connections) are slow to import, because every connection is
   measured in the page.
-- Connections follow the port elements: when a node changes size without
-  `updateConnectionNodes`, its lines are misaligned until the node moves.
+- Safari draws arrows with the fallback color (no `context-stroke`).
