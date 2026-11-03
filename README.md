@@ -305,7 +305,7 @@ Method | Description
 `removeConnectionNodeId(id)` | Remove node connections. Ex id: `node-x`
 `getModuleFromNodeId(id)` | Get name of module where is the id. Ex id: `5`
 `clearModuleSelected()` | Clear data of module selected
-`clear()` | Clear all data of all modules and modules remove.
+`clear()` | Remove all modules and data, and go back to an empty `Home` module
 `removeConnection()` | Remove the selected connection
 `export()` | Return a copy of all data
 `import(data, notifi)` | Replace all data and draw the current module. With `notifi` `false`, the `import` event is not fired

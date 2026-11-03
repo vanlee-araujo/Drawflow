@@ -120,7 +120,7 @@ points); `reroute_curvature`, `reroute_curvature_start_end` and `reroute_width` 
 A module is a separate flow in the same editor (like tabs): `addModule(name)`,
 `changeModule(name)`, `removeModule(name)`. Only the current module (`editor.module`, default
 `Home`) is drawn; the others stay in the data. Changing modules resets zoom and pan.
-`clearModuleSelected()` empties the current module; `clear()` removes all modules and data.
+`clearModuleSelected()` empties the current module; `clear()` removes all modules and data and goes back to an empty `Home`.
 
 ## Editor modes
 
