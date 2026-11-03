@@ -258,6 +258,8 @@ Parameter | Type | Description
 ## Methods
 Other available functions.
 
+Node ids are accepted as `5`, `'5'` or `'node-5'` in all methods.
+
 Mehtod | Description
 --- | ---
 `zoom_in()` | Increment zoom +0.1
