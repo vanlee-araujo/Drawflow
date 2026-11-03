@@ -808,7 +808,7 @@ export default class Drawflow {
     const container = this.container;
     const precanvas = this.precanvas;
     const curvature = this.curvature;
-    const createCurvature = this.createCurvature;
+    const createCurvature = this.createCurvature.bind(this);
     const reroute_curvature = this.reroute_curvature;
     const reroute_curvature_start_end = this.reroute_curvature_start_end;
     const reroute_fix_curvature = this.reroute_fix_curvature;
