@@ -1351,12 +1351,12 @@ export default class Drawflow {
       });
     });
 
-    for(var x = 0; x < Object.keys(dataNode.outputs).length; x++) {
+    Object.keys(dataNode.outputs).forEach(output_item => {
       const output = document.createElement('div');
       output.classList.add("output");
-      output.classList.add("output_"+(x+1));
+      output.classList.add(output_item);
       outputs.appendChild(output);
-    }
+    });
 
     const content = document.createElement('div');
     content.classList.add("drawflow_content_node");
