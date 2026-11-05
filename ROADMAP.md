@@ -1,7 +1,7 @@
 # Roadmap
 
-Planned changes for this fork, from the open issues and pull requests of the original project
-and from other forks. Each one becomes a release and a pull request to the original.
+Ideas and planned changes for this fork, from the open issues and pull requests of the original project,
+from other forks and from useful side libraries. It is a working list: items are not tied to versions or tags.
 
 ## Next
 
@@ -39,10 +39,25 @@ and from other forks. Each one becomes a release and a pull request to the origi
 
 ## Project
 
+- [ ] **Split the source into modules before adding many features.** `src/drawflow.js` has 2375 lines and
+  74 methods in one class. Split it into files by subject (core and events, nodes, connections and curves,
+  reroute, view: zoom and pan, modules, import and export, layout, arrows and direction), keeping one
+  `dist/drawflow.min.js`, the same public API and the same tests. Do it before the next big features
+  (labels, minimap, undo), so each one lands in its own file. References: the split in jerosoler/Drawflow#940
+  and the module layout of the hawwwran-simpleway fork
+
 - [ ] Run the Playwright tests on GitHub Actions for every push and pull request
 - [ ] Update the build tools (webpack 4, gulp 4; the original has Dependabot pull requests jerosoler/Drawflow#893 to jerosoler/Drawflow#906)
 - [ ] Publish on npm under a scoped name, so `npm i` installs this fork
 - [ ] Open the pull requests to the original project
+
+## Side libraries
+
+Optional libraries that work well with Drawflow; the fork keeps no required dependency.
+
+- **[dagre](https://github.com/dagrejs/dagre)** (in use, optional): layered layout for `autoLayout`
+- **[elkjs](https://github.com/kieler/elkjs)** (to evaluate): layered layout that also places ports and routes
+  edges with bends; larger than dagre. Could be a second engine for `autoLayout`
 
 ## Done
 
