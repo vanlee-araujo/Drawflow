@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drawflow Playground</title>
+  <link rel="stylesheet" href="../dist/drawflow.min.css">
+  <style>
+    :root {
+      --bg: #f4f6f9; --panel: #ffffff; --text: #1f2933; --muted: #6b7785; --border: #d8dee6;
+      --accent: #2f6fde; --accent-text: #ffffff; --ok: #1f9d55; --danger: #d64545; --warn: #c27c0e;
+      --start: #1f9d55; --task: #2f6fde; --decision: #c27c0e; --join: #7c4dce; --end: #d64545;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: var(--bg); }
+    header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+    header h1 { font-size: 16px; margin: 0 8px 0 0; }
+    header .muted { color: var(--muted); font-size: 12px; }
+    main { display: grid; grid-template-columns: 240px 1fr 280px; height: calc(100vh - 53px); }
+    body.hide-left main { grid-template-columns: 0 1fr 280px; }
+    body.hide-right main { grid-template-columns: 240px 1fr 0; }
+    body.hide-left.hide-right main { grid-template-columns: 0 1fr 0; }
+    body.hide-left aside.left, body.hide-right aside.right { display: none; }
+    header .toggles { margin-left: auto; display: flex; gap: 6px; }
+    header .toggles button.on { border-color: var(--accent); color: var(--accent); }
+    #canvas-wrap { min-width: 0; }
+    aside { background: var(--panel); border-right: 1px solid var(--border); overflow: auto; padding: 12px; }
+    aside.right { border-right: 0; border-left: 1px solid var(--border); }
+    h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 14px 0 8px; }
+    h2:first-child { margin-top: 0; }
+    button, select, input[type=number], input[type=text] {
+      font: inherit; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--panel); color: var(--text);
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; flex-wrap: wrap; }
+    .row label { flex: 1; color: var(--muted); }
+    .row select, .row input[type=number] { width: 110px; }
+    .palette button { text-align: left; border-left: 4px solid var(--c); }
+    .full { width: 100%; }
+    .hint { color: var(--muted); font-size: 12px; margin: 6px 0; }
+    #drawflow { position: relative; width: 100%; height: 100%; background: var(--bg);
+      background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 20px 20px; }
+    #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre-wrap; margin: 0; max-height: 40vh; overflow: auto; }
+    #json { width: 100%; height: 180px; font: 12px ui-monospace, monospace; border: 1px solid var(--border); border-radius: 6px; padding: 6px; }
+    #toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; padding: 8px 14px; border-radius: 6px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+    #toast.show { opacity: .92; }
+
+    /* nodes */
+    .drawflow .drawflow-node { width: 180px; min-height: 0; padding: 8px 10px; background: var(--panel); color: var(--text);
+      border: 1px solid var(--border); border-left: 5px solid var(--node, var(--accent)); border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+    .drawflow .drawflow-node.selected { background: var(--panel); outline: 2px solid var(--accent); }
+    .drawflow .drawflow-node.start { --node: var(--start); }
+    .drawflow .drawflow-node.task { --node: var(--task); }
+    .drawflow .drawflow-node.decision { --node: var(--decision); }
+    .drawflow .drawflow-node.join { --node: var(--join); }
+    .drawflow .drawflow-node.end { --node: var(--end); }
+    .drawflow .drawflow-node .input, .drawflow .drawflow-node .output { width: 14px; height: 14px; border: 2px solid var(--muted); background: var(--panel); }
+    .drawflow .drawflow-node .input { left: -22px; }
+    .drawflow .drawflow-node .output { right: -15px; }
+    .drawflow-vertical .drawflow .drawflow-node .input { left: 0; top: -17px; }
+    .drawflow-vertical .drawflow .drawflow-node .output { right: 0; top: 1px; }
+    .node-title { font-weight: 600; margin-bottom: 4px; }
+    .node-title small { color: var(--muted); font-weight: 400; margin-left: 4px; }
+    .drawflow-node input[type=text] { width: 100%; padding: 3px 6px; font-size: 12px; }
+    /* decision: output 1 = yes, output 2 = no */
+    .drawflow .drawflow-node.decision .output_1 { border-color: var(--ok); }
+    .drawflow .drawflow-node.decision .output_2 { border-color: var(--danger); }
+    .drawflow .drawflow-node.decision .output::after { position: absolute; left: 16px; top: -3px; font-size: 10px; font-weight: 600; }
+    .drawflow .drawflow-node.decision .output_1::after { content: "yes"; color: var(--ok); }
+    .drawflow .drawflow-node.decision .output_2::after { content: "no"; color: var(--danger); }
+    /* connections colored by source node type (connection-<class>) */
+    .drawflow .connection .main-path { stroke: var(--muted); stroke-width: 3px; }
+    .drawflow .connection.connection-start .main-path { stroke: var(--start); }
+    .drawflow .connection.connection-task .main-path { stroke: var(--task); }
+    .drawflow .connection.connection-decision .main-path { stroke: var(--decision); }
+    .drawflow .connection.connection-join .main-path { stroke: var(--join); }
+    .drawflow .connection .main-path:hover, .drawflow .connection .main-path.selected { stroke: var(--danger); }
+    .drawflow-arrow { fill: var(--muted); fill: context-stroke; }
+    @media (max-width: 640px) { main, body.hide-left main, body.hide-right main { grid-template-columns: 1fr; height: auto; } #canvas-wrap { height: 70vh; order: -1; } aside { border: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Drawflow Playground</h1>
+    <span class="muted" id="version"></span>
+    <span class="muted">Drag from an output (right) to an input (left) · Delete removes the selection · right click shows ✕</span>
+    <span class="toggles"><button id="t-left">Build</button><button id="t-right">Options &amp; data</button></span>
+  </header>
+  <main>
+    <aside class="left">
+      <h2>Add a node</h2>
+      <div class="grid palette" id="palette"></div>
+      <div class="row" style="margin-top:8px">
+        <label>Custom</label>
+        <input type="number" id="custom-in" min="0" max="6" value="2" title="inputs">
+        <input type="number" id="custom-out" min="0" max="6" value="3" title="outputs">
+      </div>
+      <button class="full" id="add-custom">Add node with these inputs / outputs</button>
+      <p class="hint">Nodes appear in the middle of the view. Type in the field inside a node: it is saved in the node data (<code>df-name</code>).</p>
+
+      <h2>Connect by code</h2>
+      <div class="row"><label>From</label><select id="c-from"></select><select id="c-out"></select></div>
+      <div class="row"><label>To</label><select id="c-to"></select><select id="c-in"></select></div>
+      <button class="full primary" id="connect">addConnection</button>
+      <p class="hint">An output can feed many inputs, and an input can receive many outputs.</p>
+
+      <h2>Examples</h2>
+      <div class="grid">
+        <button id="ex-multi">Multiple connections</button>
+        <button id="ex-loop">With a loop back</button>
+        <button id="ex-messy">Messy import</button>
+        <button id="clear">Clear</button>
+      </div>
+    </aside>
+
+    <div id="canvas-wrap"><div id="drawflow"></div></div>
+
+    <aside class="right">
+      <h2>View</h2>
+      <div class="grid">
+        <button id="layout" class="primary">Arrange (dagre)</button>
+        <button id="fit">Fit to screen</button>
+        <button id="zoom-in">Zoom +</button>
+        <button id="zoom-out">Zoom −</button>
+      </div>
+
+      <h2>Options</h2>
+      <div class="row"><label>Arrows</label>
+        <select id="o-arrow"><option>none</option><option selected>end</option><option>start</option><option>both</option></select></div>
+      <div class="row"><label>Direction</label>
+        <select id="o-direction"><option selected>horizontal</option><option>vertical</option></select></div>
+      <div class="row"><label>Mode</label>
+        <select id="o-mode"><option selected>edit</option><option>fixed</option><option>view</option></select></div>
+      <div class="row"><label><input type="checkbox" id="o-backward" checked> Loop for connections going back</label></div>
+      <div class="row"><label><input type="checkbox" id="o-reroute"> Reroute (double click a selected line)</label></div>
+      <div class="row"><label><input type="checkbox" id="o-first-input" checked> Drop anywhere on a node</label></div>
+      <div class="row"><label><input type="checkbox" id="o-no-cycles" checked> Block cycles (connection_validator)</label></div>
+      <div class="row"><label><input type="checkbox" id="o-wheel"> Zoom with the wheel, without ctrl</label></div>
+
+      <h2>Data</h2>
+      <div class="grid">
+        <button id="export">Export</button>
+        <button id="import">Import</button>
+      </div>
+      <textarea id="json" spellcheck="false" placeholder="editor.export() appears here; edit and click Import"></textarea>
+
+      <h2>Events</h2>
+      <pre id="log"></pre>
+    </aside>
+  </main>
+  <div id="toast"></div>
+
+  <script src="../dist/drawflow.min.js"></script>
+  <!-- dagre is optional: only the "Arrange" button needs it -->
+  <script src="https://cdn.jsdelivr.net/npm/@dagrejs/dagre@1.1.4/dist/dagre.min.js"></script>
+  <script>
+    const TYPES = {
+      start:    { label: 'Start',    inputs: 0, outputs: 1 },
+      task:     { label: 'Task',     inputs: 1, outputs: 1 },
+      decision: { label: 'Decision', inputs: 1, outputs: 2 },
+      join:     { label: 'Join',     inputs: 2, outputs: 1 },
+      end:      { label: 'End',      inputs: 1, outputs: 0 },
+    };
+    const $ = id => document.getElementById(id);
+    const editor = new Drawflow($('drawflow'));
+    window.editor = editor;
+
+    // ── options read at start ──
+    editor.connection_arrow = 'end';
+    editor.curvature_backward = true;
+    editor.force_first_input = true;
+    editor.connection_validator = c => {
+      if (!$('o-no-cycles').checked) return true;
+      if (c.output_id === c.input_id || reaches(c.input_id, c.output_id)) { toast('Blocked: that connection would make a cycle'); return false; }
+      return true;
+    };
+    editor.start();
+    $('version').textContent = 'methods: ' + ['setNodePosition', 'zoomFit', 'autoLayout', 'setConnectionArrow'].filter(m => typeof editor[m] === 'function').length + '/4 of the fork available';
+
+    function reaches(from, to) {
+      const data = editor.drawflow.drawflow[editor.module].data, seen = new Set();
+      const walk = id => {
+        if (String(id) === String(to)) return true;
+        if (seen.has(String(id)) || !data[id]) return false;
+        seen.add(String(id));
+        return Object.values(data[id].outputs).some(o => o.connections.some(c => walk(c.node)));
+      };
+      return walk(from);
+    }
+
+    function toast(text) {
+      $('toast').textContent = text; $('toast').classList.add('show');
+      clearTimeout(toast.t); toast.t = setTimeout(() => $('toast').classList.remove('show'), 2500);
+    }
+
+    // ── nodes ──
+    let count = 0;
+    function nodeHtml(type, label, name) {
+      const div = document.createElement('div');
+      const title = document.createElement('div'); title.className = 'node-title'; title.textContent = label;
+      const small = document.createElement('small'); small.textContent = '#' + (editor.nodeId); title.appendChild(small);
+      div.appendChild(title);
+      const input = document.createElement('input'); input.type = 'text'; input.setAttribute('df-name', ''); input.placeholder = 'name';
+      div.appendChild(input);
+      return div.innerHTML;
+    }
+    function addNode(type, inputs, outputs, x, y, name) {
+      const t = TYPES[type] || { label: 'Custom' };
+      if (x === undefined) {
+        // middle of the visible area, in canvas units
+        const r = editor.container.getBoundingClientRect(), c = editor.precanvas.getBoundingClientRect();
+        x = Math.round((r.left + r.width / 2 - c.left) / editor.zoom - 90 + (count % 5) * 20);
+        y = Math.round((r.top + r.height / 2 - c.top) / editor.zoom - 30 + (count % 5) * 20);
+      }
+      count++;
+      return editor.addNode(type, inputs, outputs, x, y, type, { name: name || t.label + ' ' + count }, nodeHtml(type, t.label));
+    }
+    for (const [type, t] of Object.entries(TYPES)) {
+      const b = document.createElement('button');
+      b.textContent = t.label + ' (' + t.inputs + '→' + t.outputs + ')';
+      b.style.setProperty('--c', `var(--${type})`);
+      b.onclick = () => addNode(type, t.inputs, t.outputs);
+      $('palette').appendChild(b);
+    }
+    $('add-custom').onclick = () => addNode('custom', +$('custom-in').value, +$('custom-out').value);
+
+    // ── connect by code ──
+    function nodesList() {
+      return Object.values(editor.export().drawflow[editor.module].data);
+    }
+    function fillPorts(nodeSelect, portSelect, kind) {
+      const node = nodesList().find(n => String(n.id) === nodeSelect.value);
+      portSelect.innerHTML = '';
+      Object.keys(node ? node[kind] : {}).forEach(p => portSelect.add(new Option(p, p)));
+    }
+    function refreshSelects() {
+      for (const [sel, kind, port] of [[$('c-from'), 'outputs', $('c-out')], [$('c-to'), 'inputs', $('c-in')]]) {
+        const keep = sel.value;
+        sel.innerHTML = '';
+        nodesList().filter(n => Object.keys(n[kind]).length).forEach(n => sel.add(new Option('#' + n.id + ' ' + (n.data.name || n.name), n.id)));
+        if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+        fillPorts(sel, port, kind);
+      }
+    }
+    $('c-from').onchange = () => fillPorts($('c-from'), $('c-out'), 'outputs');
+    $('c-to').onchange = () => fillPorts($('c-to'), $('c-in'), 'inputs');
+    $('connect').onclick = () => {
+      if (!$('c-from').value || !$('c-to').value) return toast('Add nodes with outputs and inputs first');
+      editor.addConnection($('c-from').value, $('c-to').value, $('c-out').value, $('c-in').value);
+    };
+
+    // ── examples ──
+    function example(build) {
+      editor.clear(); editor.nodeId = 1; count = 0;
+      build();
+      if (window.dagre) editor.autoLayout(dagre, { fitOptions: { padding: 30, minZoom: 0.3 } }); else editor.zoomFit({ padding: 30, minZoom: 0.3 });
+      refreshSelects();
+    }
+    $('ex-multi').onclick = () => example(() => {
+      const s = addNode('start', 0, 1, 0, 0, 'Order received');
+      const a = addNode('task', 1, 1, 0, 0, 'Check stock'), b = addNode('task', 1, 1, 0, 0, 'Check payment');
+      const j = addNode('join', 2, 1, 0, 0, 'Both done');
+      const d = addNode('decision', 1, 2, 0, 0, 'Approved?');
+      const ok = addNode('end', 1, 0, 0, 0, 'Ship'), no = addNode('end', 1, 0, 0, 0, 'Cancel');
+      const log = addNode('task', 1, 1, 0, 0, 'Write log');
+      editor.addConnection(s, a, 'output_1', 'input_1');   // one output →
+      editor.addConnection(s, b, 'output_1', 'input_1');   // → two inputs
+      editor.addConnection(s, log, 'output_1', 'input_1'); // → and a third
+      editor.addConnection(a, j, 'output_1', 'input_1');
+      editor.addConnection(b, j, 'output_1', 'input_2');
+      editor.addConnection(j, d, 'output_1', 'input_1');
+      editor.addConnection(d, ok, 'output_1', 'input_1');
+      editor.addConnection(d, no, 'output_2', 'input_1');
+      editor.addConnection(log, no, 'output_1', 'input_1'); // two outputs → one input
+    });
+    $('ex-loop').onclick = () => {
+      $('o-no-cycles').checked = false;
+      example(() => {
+        const s = addNode('start', 0, 1, 0, 0, 'Start'), t = addNode('task', 1, 1, 0, 0, 'Try');
+        const d = addNode('decision', 1, 2, 0, 0, 'Worked?'), e = addNode('end', 1, 0, 0, 0, 'Done');
+        editor.addConnection(s, t, 'output_1', 'input_1');
+        editor.addConnection(t, d, 'output_1', 'input_1');
+        editor.addConnection(d, e, 'output_1', 'input_1');
+        editor.addConnection(d, t, 'output_2', 'input_1'); // back to "Try": drawn as a loop
+      });
+      toast('Cycles allowed for this example; "no" goes back to "Try"');
+    };
+    $('ex-messy').onclick = () => {
+      // positions far away and negative, as in data saved somewhere else
+      editor.clear(); editor.nodeId = 1; count = 0;
+      const s = addNode('start', 0, 1, -900, -500, 'Start'), a = addNode('task', 1, 1, 2400, 40, 'A');
+      const b = addNode('task', 1, 1, 300, 1600, 'B'), e = addNode('end', 1, 0, -300, 900, 'End');
+      editor.addConnection(s, a, 'output_1', 'input_1'); editor.addConnection(a, b, 'output_1', 'input_1'); editor.addConnection(b, e, 'output_1', 'input_1');
+      refreshSelects();
+      toast('Nodes are off screen: try "Fit to screen" and then "Arrange"');
+    };
+    $('clear').onclick = () => { editor.clear(); editor.nodeId = 1; count = 0; refreshSelects(); };
+
+    // ── view ──
+    $('layout').onclick = () => {
+      if (!window.dagre) return toast('dagre did not load (no internet?): "Arrange" needs it');
+      editor.autoLayout(dagre, { fitOptions: { padding: 30, minZoom: 0.3 } });
+    };
+    $('fit').onclick = () => editor.zoomFit({ padding: 40, minZoom: 0.1 });
+    $('zoom-in').onclick = () => editor.zoom_in();
+    $('zoom-out').onclick = () => editor.zoom_out();
+
+    // ── options ──
+    $('o-arrow').onchange = e => editor.setConnectionArrow(e.target.value);
+    $('o-direction').onchange = e => { editor.setConnectionDirection(e.target.value); if (window.dagre) editor.autoLayout(dagre, { fitOptions: { padding: 30, minZoom: 0.3 } }); };
+    $('o-mode').onchange = e => { editor.editor_mode = e.target.value; };
+    $('o-backward').onchange = e => { editor.curvature_backward = e.target.checked; redraw(); };
+    $('o-reroute').onchange = e => { editor.reroute = e.target.checked; editor.import(editor.export(), false); };
+    $('o-first-input').onchange = e => { editor.force_first_input = e.target.checked; };
+    $('o-wheel').onchange = e => { editor.zoom_use_ctrl_key = !e.target.checked; };
+    function redraw() { Object.keys(editor.drawflow.drawflow[editor.module].data).forEach(id => editor.updateConnectionNodes(id)); }
+
+    // ── data ──
+    $('export').onclick = () => { $('json').value = JSON.stringify(editor.export(), null, 2); };
+    $('import').onclick = () => {
+      try { editor.import(JSON.parse($('json').value)); refreshSelects(); editor.zoomFit({ padding: 40, minZoom: 0.1 }); }
+      catch (err) { toast('Invalid JSON: ' + err.message); }
+    };
+
+    // ── events ──
+    const events = ['nodeCreated', 'nodeRemoved', 'nodeSelected', 'nodeMoved', 'nodeDataChanged', 'connectionCreated',
+      'connectionRemoved', 'connectionCancel', 'connectionSelected', 'addReroute', 'removeReroute', 'zoom', 'import'];
+    const lines = [];
+    events.forEach(name => editor.on(name, detail => {
+      if (name === 'zoom') detail = Math.round(detail * 100) + '%';
+      const text = typeof detail === 'object' ? JSON.stringify(detail).replace(/"/g, '') : String(detail);
+      lines.unshift(name + ' ' + text);
+      lines.length = Math.min(lines.length, 60);
+      $('log').textContent = lines.join('\n');
+      if (/node(Created|Removed)|import|connection(Created|Removed)/.test(name)) refreshSelects();
+    }));
+
+    // ── panels ──
+    function panels(left, right) {
+      document.body.classList.toggle('hide-left', !left);
+      document.body.classList.toggle('hide-right', !right);
+      $('t-left').classList.toggle('on', left);
+      $('t-right').classList.toggle('on', right);
+      requestAnimationFrame(() => editor.zoomFit({ padding: 30, minZoom: 0.3 }));
+    }
+    $('t-left').onclick = () => panels(document.body.classList.contains('hide-left'), !document.body.classList.contains('hide-right'));
+    $('t-right').onclick = () => panels(!document.body.classList.contains('hide-left'), document.body.classList.contains('hide-right'));
+    panels(true, window.innerWidth >= 1100);
+
+    $('ex-multi').click();
+  </script>
+</body>
+</html>
