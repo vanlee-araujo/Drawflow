@@ -79,13 +79,13 @@ Download or clone repository and copy the dist folder, CDN option Or npm.
 #### CDN
 ```html
 # Fixed version (see https://github.com/vanlee-araujo/Drawflow/releases)
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.1.2/dist/drawflow.min.css">
-<script src="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.1.2/dist/drawflow.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.2.0/dist/drawflow.min.css">
+<script src="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.2.0/dist/drawflow.min.js"></script>
 ```
 
 #### NPM
 ```javascript
-npm i github:vanlee-araujo/Drawflow#0.1.2
+npm i github:vanlee-araujo/Drawflow#0.2.0
 ```
 The `drawflow` package on npm is the original 0.0.60, without the changes of this fork.
 

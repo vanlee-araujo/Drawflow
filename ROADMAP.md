@@ -32,10 +32,9 @@ Optional libraries that work well with Drawflow; the fork keeps no required depe
 
 ## Done
 
-- Removal validators, locked nodes, `selectNode` and `centerNode`, multi-selection, snap to grid, node bounds,
+- 0.2.0: removal validators, locked nodes, `selectNode` and `centerNode`, multi-selection, snap to grid, node bounds,
   labels on connections, CSS variables, undo and redo, `renderPreview`, minimap, TypeScript types,
-  tests in the repository with GitHub Actions, webpack 5 and gulp 5
-- Source split by subject in `src/parts/`, with one `dist/drawflow.min.js`
+  tests in the repository with GitHub Actions, webpack 5 and gulp 5, source split by subject in `src/parts/`
 - 0.1.2: playground page, README for the fork, this roadmap
 - 0.1.1: `zoomFit`, `autoLayout` with dagre
 - 0.1.0: arrows, vertical direction, connection validation, layout API, 20+ fixes of open issues, manual
