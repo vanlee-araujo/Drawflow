@@ -1,0 +1,18 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.48.2-jammy
+    env:
+      HOME: /root
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run build
+      - run: npm test

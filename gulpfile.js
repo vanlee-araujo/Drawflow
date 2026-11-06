@@ -1,6 +1,6 @@
 const gulp = require('gulp');
 const concat = require('gulp-concat');
-const minifyCSS = require('gulp-minify-css');
+const cleanCSS = require('gulp-clean-css');
 const replace = require('gulp-replace');
 
 gulp.task('style', () => {
@@ -12,7 +12,7 @@ gulp.task('style', () => {
 
 gulp.task('css', () => {
   return gulp.src('src/*.css')
-  .pipe(minifyCSS())
+  .pipe(cleanCSS())
   .pipe(concat('drawflow.min.css'))
   .pipe(gulp.dest('dist/'))
 });
