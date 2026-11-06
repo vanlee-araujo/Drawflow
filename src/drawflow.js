@@ -9,6 +9,8 @@ import nodes from './parts/nodes.js';
 import data from './parts/data.js';
 import selection from './parts/selection.js';
 import labels from './parts/labels.js';
+import history from './parts/history.js';
+import preview from './parts/preview.js';
 
 export default class Drawflow {
   constructor(container, render = null, parent = null) {
@@ -78,6 +80,13 @@ export default class Drawflow {
     this.selected_nodes = [];
     this.selection_box = null;
     this.drag_origin = {};
+    // Undo and redo (Ctrl+Z, Ctrl+Y). Set before start()
+    this.history = false;
+    this.history_limit = 50;
+    this.history_stack = [];
+    this.history_index = -1;
+    this.history_timer = null;
+    this.history_restoring = false;
 
     this.noderegister = {};
     this.render = render;
@@ -161,6 +170,9 @@ export default class Drawflow {
     this.container.onpointerleave = this.pointerup_handler.bind(this);
 
     this.load();
+    if(this.history) {
+      this.startHistory();
+    }
   }
 
   /* End Mobile Zoom */
@@ -266,7 +278,7 @@ export default class Drawflow {
 }
 
 // Each file in parts/ adds its methods to the class, not enumerable like the ones written above
-[interactions, view, layout, curves, connections, arrows, reroute, nodes, data, selection, labels].forEach(methods => {
+[interactions, view, layout, curves, connections, arrows, reroute, nodes, data, selection, labels, history, preview].forEach(methods => {
   Object.keys(methods).forEach(name => {
     Object.defineProperty(Drawflow.prototype, name, { value: methods[name], writable: true, configurable: true });
   });

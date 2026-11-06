@@ -457,6 +457,17 @@ export default {
     if(this.editor_mode === 'fixed' || this.editor_mode === 'view') {
       return false;
     }
+    if (this.history && (e.ctrlKey || e.metaKey) && !this.isTyping(e.target)) {
+      const key = e.key.toLowerCase();
+      if(key === 'z' || key === 'y') {
+        e.preventDefault();
+        if(key === 'y' || e.shiftKey) {
+          this.redo();
+        } else {
+          this.undo();
+        }
+      }
+    }
     if (this.multiselect && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && !this.isTyping(e.target)) {
       e.preventDefault();
       this.selectNodes(Object.keys(this.drawflow.drawflow[this.module].data));
