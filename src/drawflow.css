@@ -221,6 +221,11 @@
 }
 
 /* renderPreview */
+.drawflow svg.drawflow-preview {
+  position: static;
+  display: block;
+  overflow: hidden !important;
+}
 .drawflow-preview-node {
   fill: var(--drawflow-node-background, cyan);
   stroke: var(--drawflow-node-border-color, black);

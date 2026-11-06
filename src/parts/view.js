@@ -59,7 +59,7 @@ export default {
     const minZoom = options.minZoom !== undefined ? options.minZoom : this.zoom_min;
     const maxZoom = options.maxZoom !== undefined ? options.maxZoom : 1;
     const elements = this.precanvas.querySelectorAll('.drawflow-node, .drawflow-node .input, .drawflow-node .output, .connection .main-path, .connection .point');
-    if(elements.length === 0) {
+    if(elements.length === 0 || this.container.clientWidth === 0 || this.container.clientHeight === 0) {
       return null;
     }
     // Bounds in canvas units: the canvas is drawn at canvas_x/y with scale zoom

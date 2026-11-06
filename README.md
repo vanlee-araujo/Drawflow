@@ -66,6 +66,10 @@ Installing only a javascript library and with four lines of code.
 - Connection validation
 - Node position, zoom and pan from code
 - Connection classes by node type
+- Labels on connections
+- Undo and redo
+- Multi-selection, locked nodes, snap to grid
+- Minimap and flow previews
 
 ## Installation
 Download or clone repository and copy the dist folder, CDN option Or npm.  
@@ -86,10 +90,7 @@ npm i github:vanlee-araujo/Drawflow#0.1.2
 The `drawflow` package on npm is the original 0.0.60, without the changes of this fork.
 
 ### Typescript
-External package. More info [#119](https://github.com/jerosoler/Drawflow/issues/119)
-```javascript
-npm install -D @types/drawflow
-```
+Types are included in this fork (`types/drawflow.d.ts`).
 
 #### Import
 ```javascript
@@ -200,6 +201,13 @@ Parameter | Type | Default | Description
 `connection_arrow_offset` | Number | 12 | Distance from the port center to the arrow tip, so the tip stays outside the port. Use half of your port size (with border)
 `connection_direction` | Text | `horizontal` | `horizontal`: inputs on the left, outputs on the right. `vertical`: inputs on top, outputs at the bottom, curves leave and enter vertically. Change it later with `setConnectionDirection`
 `connection_target_class` | Text | `connection-target` | Class added to the node under the pointer while dragging a connection, when releasing there creates the connection (on an input, or anywhere on the node with `force_first_input`)
+`node_remove_validator` | Function | null | Called with the node id before removing it (Delete key, ✕ button, `removeNodeId`). Return `false` to keep it
+`connection_remove_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before removing a connection. Return `false` to keep it
+`snap_grid` | Number | 0 | Grid size for dragged nodes. `0` for no grid
+`node_bounds` | Object | null | Limits for dragged nodes: `{ min_x, min_y, max_x, max_y }`, any of them. Ex: `{ min_x: 0, min_y: 0 }` for no negative positions
+`multiselect` | Boolean | false | Ctrl/Shift + click and Shift + drag on the canvas select several nodes; they move and are deleted together; Ctrl+A selects all
+`history` | Boolean | false | Undo and redo (Ctrl+Z, Ctrl+Y, `undo()`, `redo()`). Set before `start()`
+`history_limit` | Number | 50 | Steps kept for undo
 `connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
 
 ### Reroute
@@ -292,6 +300,13 @@ Method | Description
 `setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
 `setConnectionArrow(arrow, size, offset)` | Change arrows of all connections. Ex: `'both'` or `'end', 16, 9`
 `setConnectionDirection(direction)` | Change direction and redraw connections. Ex: `'vertical'`
+`setConnectionLabel(id_output, id_input, output_class, input_class, text)` | Text on a connection, saved in the export. An empty text removes it
+`getConnectionLabel(id_output, id_input, output_class, input_class)` | Text of a connection
+`setNodeLocked(id, locked)` / `isNodeLocked(id)` | A locked node cannot be dragged or removed. Saved in the export
+`selectNode(id)` / `selectNodes(ids)` / `clearSelection()` / `getSelectedNodes()` | Selection from code
+`centerNode(id)` / `centerCanvasOn(x, y)` | Pan so that a node or a point is in the center
+`undo()` / `redo()` / `canUndo()` / `canRedo()` | History, with the `history` option
+`renderPreview(element, options)` | Draw a flow as a small picture in an element. Options: `data` (an export) or `module`, `color(node)`, `nodeWidth`, `nodeHeight`, `padding`, `direction`
 `zoomFit(options)` | Zoom and pan so that every node fits in the editor. Options: `padding` (20), `minZoom` (`zoom_min`; lower it to fit big flows), `maxZoom` (1)
 `autoLayout(dagre, options)` | Arrange the nodes in layers with [dagre](https://github.com/dagrejs/dagre), loaded by you. Options: `direction` (`LR`, `TB`, `RL`, `BT`; default from `connection_direction`), `nodesep` (40), `ranksep` (70), `edgesep` (10), `fit` (true), `fitOptions` (for `zoomFit`). Reroute points are removed
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
@@ -358,6 +373,10 @@ Event | Return | Description
   `addReroute` | id | `id` of Node output
   `removeReroute` | id | `id` of Node output
   `rerouteMoved` | id | `id` of Node output
+  `nodeLocked` | { id, locked } | Node locked or unlocked
+  `selectionChanged` | ids | `id`'s of the selected nodes (`multiselect`)
+  `connectionLabelChanged` | { output_id, input_id, output_class, input_class, label } | Text of a connection changed
+  `historyChanged` | { canUndo, canRedo } | Undo state changed
   `moduleCreated` | name | `name` of Module
   `moduleChanging` | name | `name` of Module, before the change
   `moduleChanged` | name | `name` of Module, after the module is drawn
@@ -465,6 +484,18 @@ editor.setConnectionDirection('horizontal');
 - The arrow takes the color of its line, also on hover and when selected (`fill: context-stroke`). Browsers without `context-stroke` (Safari) use the fallback color: `.drawflow-arrow { fill: steelblue; }`. Set it to your line color.
 - Each connection, and each output port, gets `connection-<class>` for every class of its source node. Ex: a node with class `query` gives `connection-query`, so lines of each node type can have their own color.
 - With `connection_direction = 'vertical'` the container gets the class `drawflow-vertical`. If you restyle ports, keep inputs on the top border and outputs on the bottom border.
+
+### Minimap
+
+Optional file: load `dist/drawflow-minimap.min.js` after Drawflow.
+```javascript
+const minimap = new DrawflowMinimap(editor, { width: 200, height: 140 });
+minimap.destroy();
+```
+
+### Colors
+
+Colors are CSS variables with the default values: `--drawflow-node-background`, `--drawflow-node-selected-background`, `--drawflow-node-border-color`, `--drawflow-node-color`, `--drawflow-input-background`, `--drawflow-output-background`, `--drawflow-port-border-color`, `--drawflow-connection-color`, `--drawflow-connection-hover-color`, `--drawflow-connection-selected-color`, `--drawflow-point-stroke`, `--drawflow-point-fill`, `--drawflow-point-selected-fill`, `--drawflow-delete-background`, `--drawflow-delete-color`, `--drawflow-label-background`, `--drawflow-label-color`, `--drawflow-minimap-background`, `--drawflow-minimap-border`.
 
 ## Example
 Try everything in the [playground](docs/playground.html). View the original example in folder [docs](docs/index.html).  

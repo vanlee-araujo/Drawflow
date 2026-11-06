@@ -702,6 +702,23 @@ async function run(name) {
     await p.close();
   } catch (e) { check(B, 'execução', false, e.message.split('\n')[0]); }
 
+  // Editor sem tamanho no momento do desenho (aba ou painel oculto)
+  try {
+    const p = await page(browser, '<div id="w" style="height:0;overflow:hidden"><div id="d" style="width:800px;height:100%;position:relative"></div></div>');
+    const r = await p.evaluate(async () => {
+      const df = new Drawflow(document.getElementById('d')); df.start();
+      df.addNode('a', 1, 1, 50, 100, 'a', {}, 'A'); df.addNode('b', 1, 1, 400, 100, 'b', {}, 'B'); df.addConnection(1, 2, 'output_1', 'input_1');
+      const fit = df.zoomFit();
+      document.getElementById('w').style.height = '500px';
+      await new Promise(f => setTimeout(f, 150));
+      const d = document.querySelector('.main-path').getAttribute('d').trim().split(/\s+/), c = document.querySelector('#node-1 .output_1').getBoundingClientRect(), pc = df.precanvas.getBoundingClientRect();
+      df.clear(); df.addNode('x', 1, 1, 10, 10, 'x', {}, 'X');
+      return { fit, y: Number(d[2]), port: c.top + c.height / 2 - pc.top, zoom: df.zoom };
+    });
+    check(B, 'editor sem tamanho: zoomFit não age e as linhas se ajustam ao aparecer', r.fit === null && r.zoom === 1 && Math.abs(r.y - r.port) < 1, r);
+    await p.close();
+  } catch (e) { check(B, 'execução', false, e.message.split('\n')[0]); }
+
   // PR #947 (konum): laço de retorno, padrão desligado, funciona no vertical
   try {
     const p = await page(browser);

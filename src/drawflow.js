@@ -155,11 +155,15 @@ export default class Drawflow {
     if(this.observe_node_resize && typeof ResizeObserver !== 'undefined') {
       this.resize_observer = new ResizeObserver(entries => {
         entries.forEach(entry => {
-          if(entry.target.isConnected) {
+          if(entry.target === this.container) {
+            // Drawn while the editor had no size (hidden tab, closed panel): the lines need it
+            Object.keys(this.drawflow.drawflow[this.module].data).forEach(id => this.updateConnectionNodes(id));
+          } else if(entry.target.isConnected) {
             this.updateConnectionNodes(entry.target.id);
           }
         });
       });
+      this.resize_observer.observe(this.container);
     }
     /* Mobile zoom */
     this.container.onpointerdown = this.pointerdown_handler.bind(this);

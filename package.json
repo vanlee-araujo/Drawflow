@@ -4,7 +4,7 @@
   "description": "Simple flow library",
   "main": "dist/drawflow.min.js",
   "scripts": {
-    "dev": "webpack serve --mode development --open --host 0.0.0.0",
+    "dev": "webpack --mode development --watch",
     "build": "webpack --mode=production && gulp",
     "test": "node test/browser.test.js"
   },
@@ -34,8 +34,7 @@
     "playwright": "1.48.2",
     "typescript": "^5.6.0",
     "webpack": "^5.95.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.1.0"
+    "webpack-cli": "^5.1.4"
   },
   "types": "types/drawflow.d.ts"
 }

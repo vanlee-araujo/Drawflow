@@ -52,6 +52,7 @@ export default {
   clearModuleSelected() {
     if(this.resize_observer) {
       this.resize_observer.disconnect();
+      this.resize_observer.observe(this.container);
     }
     this.precanvas.innerHTML = "";
     this.drawflow.drawflow[this.module] =  { "data": {} };
@@ -60,6 +61,7 @@ export default {
   clear () {
     if(this.resize_observer) {
       this.resize_observer.disconnect();
+      this.resize_observer.observe(this.container);
     }
     this.precanvas.innerHTML = "";
     this.drawflow = { "drawflow": { "Home": { "data": {} }}};

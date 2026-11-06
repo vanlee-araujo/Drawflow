@@ -80,6 +80,14 @@
     .drawflow .connection.connection-join .main-path { stroke: var(--join); }
     .drawflow .connection .main-path:hover, .drawflow .connection .main-path.selected { stroke: var(--danger); }
     .drawflow-arrow { fill: var(--muted); fill: context-stroke; }
+    .drawflow .drawflow-node.locked { border-style: dashed; }
+    .drawflow .drawflow-node.multiselected { outline: 2px solid var(--accent); }
+    .drawflow .connection-label { background: var(--panel); border: 1px solid var(--border); color: var(--text); }
+    .drawflow-node .mini { height: 74px; margin-top: 4px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); cursor: zoom-in; }
+    .drawflow-preview-node { fill: var(--panel); stroke: var(--muted); }
+    .drawflow-preview-node.start { stroke: var(--start); } .drawflow-preview-node.decision { stroke: var(--decision); } .drawflow-preview-node.end { stroke: var(--end); }
+    .drawflow-preview-line { stroke: var(--muted); }
+    #back { display: none; }
     @media (max-width: 640px) { main, body.hide-left main, body.hide-right main { grid-template-columns: 1fr; height: auto; } #canvas-wrap { height: 70vh; order: -1; } aside { border: 0; } }
   </style>
 </head>
@@ -88,7 +96,7 @@
     <h1>Drawflow Playground</h1>
     <span class="muted" id="version"></span>
     <span class="muted">Drag from an output (right) to an input (left) · Delete removes the selection · right click shows ✕</span>
-    <span class="toggles"><button id="t-left">Build</button><button id="t-right">Options &amp; data</button></span>
+    <span class="toggles"><button id="back">← Back to Home</button><button id="t-left">Build</button><button id="t-right">Options &amp; data</button></span>
   </header>
   <main>
     <aside class="left">
@@ -113,6 +121,7 @@
         <button id="ex-multi">Multiple connections</button>
         <button id="ex-loop">With a loop back</button>
         <button id="ex-messy">Messy import</button>
+        <button id="ex-sub">Sub-flow in a node</button>
         <button id="clear">Clear</button>
       </div>
     </aside>
@@ -126,7 +135,14 @@
         <button id="fit">Fit to screen</button>
         <button id="zoom-in">Zoom +</button>
         <button id="zoom-out">Zoom −</button>
+        <button id="undo">Undo</button>
+        <button id="redo">Redo</button>
+        <button id="lock">Lock / unlock</button>
+        <button id="center">Center selected</button>
       </div>
+
+      <h2>Selected connection</h2>
+      <div class="row"><input type="text" id="label" placeholder="label" style="flex:1;min-width:0"><button id="set-label">Set</button></div>
 
       <h2>Options</h2>
       <div class="row"><label>Arrows</label>
@@ -140,6 +156,9 @@
       <div class="row"><label><input type="checkbox" id="o-first-input" checked> Drop anywhere on a node</label></div>
       <div class="row"><label><input type="checkbox" id="o-no-cycles" checked> Block cycles (connection_validator)</label></div>
       <div class="row"><label><input type="checkbox" id="o-wheel"> Zoom with the wheel, without ctrl</label></div>
+      <div class="row"><label><input type="checkbox" id="o-grid"> Snap to a 20px grid</label></div>
+      <div class="row"><label><input type="checkbox" id="o-minimap" checked> Minimap</label></div>
+      <p class="hint">Ctrl + click or Shift + drag selects several nodes. Ctrl+Z and Ctrl+Y undo and redo.</p>
 
       <h2>Data</h2>
       <div class="grid">
@@ -155,6 +174,7 @@
   <div id="toast"></div>
 
   <script src="../dist/drawflow.min.js"></script>
+  <script src="../dist/drawflow-minimap.min.js"></script>
   <!-- dagre is optional: only the "Arrange" button needs it -->
   <script src="https://cdn.jsdelivr.net/npm/@dagrejs/dagre@1.1.4/dist/dagre.min.js"></script>
   <script>
@@ -173,6 +193,8 @@
     editor.connection_arrow = 'end';
     editor.curvature_backward = true;
     editor.force_first_input = true;
+    editor.multiselect = true;
+    editor.history = true;
     editor.connection_validator = c => {
       if (!$('o-no-cycles').checked) return true;
       if (c.output_id === c.input_id || reaches(c.input_id, c.output_id)) { toast('Blocked: that connection would make a cycle'); return false; }
@@ -338,6 +360,61 @@
       $('log').textContent = lines.join('\n');
       if (/node(Created|Removed)|import|connection(Created|Removed)/.test(name)) refreshSelects();
     }));
+
+    // ── undo, lock, labels, minimap ──
+    let connection = null, minimap = new DrawflowMinimap(editor, { width: 180, height: 120 });
+    $('undo').onclick = () => editor.undo();
+    $('redo').onclick = () => editor.redo();
+    $('lock').onclick = () => {
+      const ids = editor.getSelectedNodes();
+      if (!ids.length) return toast('Select a node first');
+      ids.forEach(id => editor.setNodeLocked(id, !editor.isNodeLocked(id)));
+    };
+    $('center').onclick = () => { const ids = editor.getSelectedNodes(); if (ids.length) editor.centerNode(ids[0]); };
+    editor.on('connectionSelected', c => {
+      connection = c;
+      $('label').value = editor.getConnectionLabel(c.output_id, c.input_id, c.output_class, c.input_class);
+    });
+    editor.on('connectionUnselected', () => { connection = null; });
+    $('set-label').onclick = () => {
+      if (!connection) return toast('Click on a connection first');
+      editor.setConnectionLabel(connection.output_id, connection.input_id, connection.output_class, connection.input_class, $('label').value);
+    };
+    $('o-grid').onchange = e => { editor.snap_grid = e.target.checked ? 20 : 0; };
+    $('o-minimap').onchange = e => {
+      if (e.target.checked) minimap = new DrawflowMinimap(editor, { width: 180, height: 120 });
+      else minimap.destroy();
+    };
+
+    // ── a node that shows another flow ──
+    function drawMiniFlows() {
+      document.querySelectorAll('.mini').forEach(el => editor.renderPreview(el, { module: el.dataset.module, nodeWidth: 200, nodeHeight: 70 }));
+      $('back').style.display = editor.module === 'Home' ? 'none' : 'inline-block';
+    }
+    editor.on('import', drawMiniFlows);
+    editor.on('moduleChanged', () => { drawMiniFlows(); refreshSelects(); editor.zoomFit({ padding: 30, minZoom: 0.3 }); });
+    editor.on('historyChanged', drawMiniFlows);
+    $('back').onclick = () => editor.changeModule('Home');
+    $('drawflow').addEventListener('dblclick', e => {
+      const mini = e.target.closest('.mini');
+      if (mini) editor.changeModule(mini.dataset.module);
+    });
+    $('ex-sub').onclick = () => example(() => {
+      if (!editor.drawflow.drawflow.Steps) editor.addModule('Steps');
+      const data = editor.drawflow.drawflow.Steps.data, box = (id, name, cls, x, y, inputs, outputs) => {
+        data[id] = { id, name, data: {}, class: cls, html: '<div class="node-title">' + name + '</div>', typenode: false, inputs, outputs, pos_x: x, pos_y: y };
+      };
+      const link = (node, key) => ({ connections: [{ node, [key]: key === 'output' ? 'input_1' : 'output_1' }] });
+      box(101, 'Prepare', 'start', 0, 90, {}, { output_1: { connections: [{ node: '102', output: 'input_1' }, { node: '103', output: 'input_1' }] } });
+      box(102, 'Part A', 'task', 300, 0, { input_1: link('101', 'input') }, { output_1: link('104', 'output') });
+      box(103, 'Part B', 'task', 300, 180, { input_1: link('101', 'input') }, { output_1: { connections: [{ node: '104', output: 'input_1' }] } });
+      box(104, 'Finish', 'end', 600, 90, { input_1: { connections: [{ node: '102', input: 'output_1' }, { node: '103', input: 'output_1' }] } }, {});
+      const s = addNode('start', 0, 1, 0, 0, 'Start');
+      const sub = editor.addNode('task', 1, 1, 0, 0, 'task', {}, '<div class="node-title">Sub-flow</div><div class="mini" data-module="Steps"></div><div class="hint">double click opens it</div>');
+      const e = addNode('end', 1, 0, 0, 0, 'Done');
+      editor.addConnection(s, sub, 'output_1', 'input_1'); editor.addConnection(sub, e, 'output_1', 'input_1');
+      drawMiniFlows();
+    });
 
     // ── panels ──
     function panels(left, right) {

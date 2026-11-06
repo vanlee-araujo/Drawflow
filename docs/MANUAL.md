@@ -25,6 +25,8 @@ explains the concepts behind them.
 - [Arrows and direction](#arrows-and-direction)
 - [Styling connections by node type](#styling-connections-by-node-type)
 - [Robustness](#robustness)
+- [Editing tools](#editing-tools)
+- [Previews and minimap](#previews-and-minimap)
 - [Known limitations](#known-limitations)
 
 ## What Drawflow is
@@ -238,7 +240,7 @@ div.parent-drawflow              ← your container
 - **Nuxt:** transpile the package (see the README).
 - **Others (React, Angular, Svelte):** use HTML nodes (`typenode = false`) and read and write the
   node `data`, or render your component into the node element after `nodeCreated`.
-- **TypeScript:** types are in the external package `@types/drawflow`.
+- **TypeScript:** types are included (`types/drawflow.d.ts`).
 
 ## Layout from code
 
@@ -298,11 +300,39 @@ pulse in the default CSS).
 - `zoom_use_ctrl_key = false` zooms with the mouse wheel alone.
 - `moduleChanging` fires before a module change and `moduleChanged` after the module is drawn.
 
+## Editing tools
+
+- **Protecting items:** `node_remove_validator` and `connection_remove_validator` keep a node or a connection
+  when they return `false`, for the Delete key, the ✕ button and the remove methods. `setNodeLocked(id)` makes a
+  node impossible to drag or remove, and is saved in the export; its fields and connections keep working.
+- **Selection:** `multiselect = true` adds Ctrl/Shift + click, Shift + drag on the canvas and Ctrl+A. A selected
+  group moves and is deleted together. From code: `selectNode`, `selectNodes`, `clearSelection`,
+  `getSelectedNodes`, `centerNode`.
+- **Dragging limits:** `snap_grid` and `node_bounds` apply to nodes dragged by the user, not to `setNodePosition`.
+- **Undo and redo:** `history = true` before `start()`. Each step is a snapshot of all modules; changes made
+  together (a node and its connections, a layout, typing) become one step. Ctrl+Z, Ctrl+Y or Ctrl+Shift+Z,
+  `undo()`, `redo()`, and the event `historyChanged`.
+- **Labels:** `setConnectionLabel(...)` writes a text in the middle of a connection, as an element with the class
+  `.connection-label`. It is saved in the output side of the connection (`label`).
+- **Colors:** all colors of `drawflow.css` are `--drawflow-*` variables (see the README).
+
+## Previews and minimap
+
+`renderPreview(element, options)` draws a flow as a small SVG in any element: boxes and lines, without text.
+Pass `module` for another module of the editor, or `data` for an export or a module saved elsewhere, and
+`color(node)` to color by status. Nodes that are not on screen have no measured size, so they use `nodeWidth`
+and `nodeHeight`. A node can show a sub-flow this way: put an element in its HTML, draw the preview into it, and
+call `changeModule` on double click (the playground has this example). Draw it again after `import`
+and `moduleChanged`, because those rebuild the nodes.
+
+The minimap is the optional file `dist/drawflow-minimap.min.js`: `new DrawflowMinimap(editor, { width, height })`.
+It shows the flow and the visible area; click or drag on it to move the view.
+
 ## Known limitations
 
 - Only the current module is drawn; there is no list of modules besides
   `Object.keys(editor.drawflow.drawflow)`.
-- No undo, multi-selection or minimap. Automatic layout needs dagre (`autoLayout`).
+- Automatic layout needs dagre (`autoLayout`).
 - Very large flows (thousands of connections) are slow to import, because every connection is
   measured in the page.
 - Safari draws arrows with the fallback color (no `context-stroke`).
