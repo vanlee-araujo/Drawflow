@@ -39,13 +39,6 @@ from other forks and from useful side libraries. It is a working list: items are
 
 ## Project
 
-- [ ] **Split the source into modules before adding many features.** `src/drawflow.js` has 2375 lines and
-  74 methods in one class. Split it into files by subject (core and events, nodes, connections and curves,
-  reroute, view: zoom and pan, modules, import and export, layout, arrows and direction), keeping one
-  `dist/drawflow.min.js`, the same public API and the same tests. Do it before the next big features
-  (labels, minimap, undo), so each one lands in its own file. References: the split in jerosoler/Drawflow#940
-  and the module layout of the hawwwran-simpleway fork
-
 - [ ] Run the Playwright tests on GitHub Actions for every push and pull request
 - [ ] Update the build tools (webpack 4, gulp 4; the original has Dependabot pull requests jerosoler/Drawflow#893 to jerosoler/Drawflow#906)
 - [ ] Publish on npm under a scoped name, so `npm i` installs this fork
@@ -61,6 +54,7 @@ Optional libraries that work well with Drawflow; the fork keeps no required depe
 
 ## Done
 
+- Source split by subject in `src/parts/`, with one `dist/drawflow.min.js`
 - 0.1.2: playground page, README for the fork, this roadmap
 - 0.1.1: `zoomFit`, `autoLayout` with dagre
 - 0.1.0: arrows, vertical direction, connection validation, layout API, 20+ fixes of open issues, manual
