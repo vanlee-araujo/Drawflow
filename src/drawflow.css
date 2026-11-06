@@ -9,6 +9,7 @@
   width: 100%;
   height: 100%;
   position: relative;
+  -webkit-user-select: none;
   user-select: none;
   perspective: 0;
 }
@@ -22,18 +23,18 @@
   display: flex;
   align-items: center;
   position: absolute;
-  background: cyan;
+  background: var(--drawflow-node-background, cyan);
   width: 160px;
   min-height: 40px;
   border-radius:4px;
-  border: 2px solid black;
-  color: black;
+  border: 2px solid var(--drawflow-node-border-color, black);
+  color: var(--drawflow-node-color, black);
   z-index: 2;
   padding: 15px;
 }
 
 .drawflow .drawflow-node.selected {
-  background: red;
+  background: var(--drawflow-node-selected-background, red);
 }
 .drawflow .drawflow-node:hover {
   cursor: move;
@@ -53,9 +54,9 @@
   position: relative;
   width: 20px;
   height: 20px;
-  background: white;
+  background: var(--drawflow-output-background, white);
   border-radius: 50%;
-  border: 2px solid black;
+  border: 2px solid var(--drawflow-port-border-color, black);
   cursor: crosshair;
   z-index: 1;
   margin-bottom: 5px;
@@ -64,7 +65,7 @@
 .drawflow .drawflow-node .input {
   left: -27px;
   top: 2px;
-  background: yellow;
+  background: var(--drawflow-input-background, yellow);
 }
 .drawflow .drawflow-node .output {
   right: -3px;
@@ -84,28 +85,28 @@
 .drawflow .connection .main-path {
   fill: none;
   stroke-width: 5px;
-  stroke: steelblue;
+  stroke: var(--drawflow-connection-color, steelblue);
   pointer-events: all;
 }
 .drawflow .connection .main-path:hover {
-  stroke: #1266ab;
+  stroke: var(--drawflow-connection-hover-color, #1266ab);
   cursor: pointer;
 }
 
 .drawflow .connection .main-path.selected {
-  stroke: #43b993;
+  stroke: var(--drawflow-connection-selected-color, #43b993);
 }
 
 .drawflow .connection .point {
   cursor: move;
-  stroke: black;
+  stroke: var(--drawflow-point-stroke, black);
   stroke-width: 2;
-  fill: white;
+  fill: var(--drawflow-point-fill, white);
   pointer-events: all;
 }
 
 .drawflow .connection .point.selected, .drawflow .connection .point:hover {
-  fill: #1266ab;
+  fill: var(--drawflow-point-selected-fill, #1266ab);
 }
 
 .drawflow-markers {
@@ -115,7 +116,7 @@
 }
 /* Arrow takes the color of its line (hover and selected included) */
 .drawflow-arrow {
-  fill: steelblue;
+  fill: var(--drawflow-connection-color, steelblue);
   fill: context-stroke;
   stroke: none;
 }
@@ -159,7 +160,7 @@
 .drawflow .main-path {
   fill: none;
   stroke-width: 5px;
-  stroke: steelblue;
+  stroke: var(--drawflow-connection-color, steelblue);
 }
 
 .drawflow-delete {
@@ -167,10 +168,10 @@
   display: block;
   width: 30px;
   height: 30px;
-  background: black;
-  color: white;
+  background: var(--drawflow-delete-background, black);
+  color: var(--drawflow-delete-color, white);
   z-index: 4;
-  border: 2px solid white;
+  border: 2px solid var(--drawflow-delete-color, white);
   line-height: 30px;
   font-weight: bold;
   text-align: center;
@@ -186,4 +187,35 @@
 .parent-node .drawflow-delete {
   right: -15px;
   top: -15px;
+}
+
+/* Locked nodes cannot be dragged or removed */
+.drawflow .drawflow-node.locked:hover {
+  cursor: default;
+}
+
+/* multiselect */
+.drawflow .drawflow-node.multiselected {
+  outline: 2px solid steelblue;
+}
+.drawflow-selection-box {
+  position: absolute;
+  z-index: 3;
+  border: 1px dashed steelblue;
+  background: rgba(70, 130, 180, 0.15);
+  pointer-events: none;
+}
+
+/* Text on connections */
+.drawflow .connection-label {
+  position: absolute;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--drawflow-label-background, white);
+  color: var(--drawflow-label-color, black);
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
 }

@@ -196,6 +196,9 @@ export default {
     if(dataNode.class != '') {
       node.classList.add(...dataNode.class.split(' ').filter(name => name !== ''));
     }
+    if(dataNode.locked) {
+      node.classList.add('locked');
+    }
 
     const inputs = document.createElement('div');
     inputs.classList.add("inputs");
@@ -428,7 +431,7 @@ export default {
     })
     // Remove connections
     removeInputs.forEach((item, i) => {
-      this.removeSingleConnection(item.id_output, item.id, item.output_class, item.input_class);
+      this.removeSingleConnection(item.id_output, item.id, item.output_class, item.input_class, true);
     });
 
     delete this.drawflow.drawflow[moduleName].data[id].inputs[input_class];
@@ -500,7 +503,7 @@ export default {
     })
     // Remove connections
     removeOutputs.forEach((item, i) => {
-      this.removeSingleConnection(item.id, item.id_input, item.output_class, item.input_class);
+      this.removeSingleConnection(item.id, item.id_input, item.output_class, item.input_class, true);
     });
 
     delete this.drawflow.drawflow[moduleName].data[id].outputs[output_class];
@@ -563,6 +566,9 @@ export default {
 
   removeNodeId(id) {
     id = this.nodeElementId(id);
+    if(!this.canRemoveNode(id.slice(5))) {
+      return false;
+    }
     this.removeConnectionNodeId(id);
     var moduleName = this.getModuleFromNodeId(id.slice(5))
     if(this.module === moduleName) {
@@ -574,5 +580,34 @@ export default {
     }
     delete this.drawflow.drawflow[moduleName].data[id.slice(5)];
     this.dispatch('nodeRemoved', id.slice(5));
+    return true;
+  },
+
+  canRemoveNode(id) {
+    if(this.isNodeLocked(id)) {
+      return false;
+    }
+    return typeof this.node_remove_validator !== 'function' || this.node_remove_validator(id) !== false;
+  },
+
+  // A locked node cannot be dragged or removed; its fields and connections still work
+  setNodeLocked(id, locked = true) {
+    id = this.nodeKey(id);
+    const moduleName = this.getModuleFromNodeId(id);
+    if(locked) {
+      this.drawflow.drawflow[moduleName].data[id].locked = true;
+    } else {
+      delete this.drawflow.drawflow[moduleName].data[id].locked;
+    }
+    if(this.module === moduleName) {
+      this.container.querySelector('#node-'+id).classList.toggle('locked', locked);
+    }
+    this.dispatch('nodeLocked', { id: id, locked: locked });
+  },
+
+  isNodeLocked(id) {
+    id = this.nodeKey(id);
+    const moduleName = this.getModuleFromNodeId(id);
+    return moduleName !== undefined && this.drawflow.drawflow[moduleName].data[id].locked === true;
   },
 };

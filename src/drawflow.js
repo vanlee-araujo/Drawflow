@@ -7,6 +7,8 @@ import arrows from './parts/arrows.js';
 import reroute from './parts/reroute.js';
 import nodes from './parts/nodes.js';
 import data from './parts/data.js';
+import selection from './parts/selection.js';
+import labels from './parts/labels.js';
 
 export default class Drawflow {
   constructor(container, render = null, parent = null) {
@@ -64,6 +66,18 @@ export default class Drawflow {
     // Redraw connections when a node changes size (content loaded later, fonts, hidden tab)
     this.observe_node_resize = true;
     this.resize_observer = null;
+    // Optional: function(id) / function({ output_id, input_id, output_class, input_class }) => boolean.
+    // Returning false keeps the node or the connection (Delete key, ✕ button and the remove methods)
+    this.node_remove_validator = null;
+    this.connection_remove_validator = null;
+    // Grid size for dragged nodes (0: no grid), and limits { min_x, min_y, max_x, max_y } (any of them)
+    this.snap_grid = 0;
+    this.node_bounds = null;
+    // Ctrl/Shift + click and Shift + drag on the canvas select several nodes
+    this.multiselect = false;
+    this.selected_nodes = [];
+    this.selection_box = null;
+    this.drag_origin = {};
 
     this.noderegister = {};
     this.render = render;
@@ -118,12 +132,12 @@ export default class Drawflow {
     this.container.addEventListener('dblclick', this.dblclick.bind(this));
     /* Keep dragging when the pointer leaves the container, and release it outside */
     this.window_mousemove = e => {
-      if(!this.container.contains(e.target) && (this.drag || this.drag_point || this.editor_selected || this.connection)) {
+      if(!this.container.contains(e.target) && (this.drag || this.drag_point || this.editor_selected || this.connection || this.selection_box)) {
         this.position(e);
       }
     };
     this.window_mouseup = e => {
-      if(!this.container.contains(e.target) && (this.drag || this.drag_point || this.editor_selected || this.connection)) {
+      if(!this.container.contains(e.target) && (this.drag || this.drag_point || this.editor_selected || this.connection || this.selection_box)) {
         this.dragEnd(e);
       }
     };
@@ -252,7 +266,7 @@ export default class Drawflow {
 }
 
 // Each file in parts/ adds its methods to the class, not enumerable like the ones written above
-[interactions, view, layout, curves, connections, arrows, reroute, nodes, data].forEach(methods => {
+[interactions, view, layout, curves, connections, arrows, reroute, nodes, data, selection, labels].forEach(methods => {
   Object.keys(methods).forEach(name => {
     Object.defineProperty(Drawflow.prototype, name, { value: methods[name], writable: true, configurable: true });
   });

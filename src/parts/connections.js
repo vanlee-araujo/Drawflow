@@ -408,8 +408,8 @@ export default {
       }
     })
 
-    elemsOut.forEach(ele => this.updateConnectionArrows(ele));
-    elems.forEach(ele => this.updateConnectionArrows(ele));
+    elemsOut.forEach(ele => { this.updateConnectionArrows(ele); this.updateConnectionLabel(ele); });
+    elems.forEach(ele => { this.updateConnectionArrows(ele); this.updateConnectionLabel(ele); });
   },
 
   firstInputClass(id) {
@@ -467,11 +467,20 @@ export default {
     if(index_in > -1) {
       inputs.splice(index_in, 1);
     }
+    this.removeOrphanLabels();
+  },
+
+  canRemoveConnection(id_output, id_input, output_class, input_class) {
+    return typeof this.connection_remove_validator !== 'function'
+      || this.connection_remove_validator({ output_id: String(id_output), input_id: String(id_input), output_class: output_class, input_class: input_class }) !== false;
   },
 
   removeConnection() {
     if(this.connection_selected != null) {
       var listclass = this.connection_selected.parentElement.classList;
+      if(!this.canRemoveConnection(listclass[2].slice(14), listclass[1].slice(13), listclass[3], listclass[4])) {
+        return false;
+      }
       this.connection_selected.parentElement.remove();
       this.removeConnectionData(this.module, listclass[2].slice(14), listclass[3], listclass[1].slice(13), listclass[4]);
       this.dispatch('connectionRemoved', { output_id: listclass[2].slice(14), input_id: listclass[1].slice(13), output_class: listclass[3], input_class: listclass[4] } );
@@ -479,9 +488,12 @@ export default {
     }
   },
 
-  removeSingleConnection(id_output, id_input, output_class, input_class) {
+  removeSingleConnection(id_output, id_input, output_class, input_class, force = false) {
     id_output = this.nodeKey(id_output);
     id_input = this.nodeKey(id_input);
+    if(!force && !this.canRemoveConnection(id_output, id_input, output_class, input_class)) {
+      return false;
+    }
     var nodeOneModule = this.getModuleFromNodeId(id_output);
     var nodeTwoModule = this.getModuleFromNodeId(id_input);
     if(nodeOneModule === nodeTwoModule) {
@@ -516,8 +528,8 @@ export default {
     const elems = this.container.querySelectorAll(`.node_out_${id}, .node_in_${id}`);
     for(var i = elems.length-1; i >= 0; i--) {
       var listclass = elems[i].classList;
-      this.removeConnectionData(this.module, listclass[2].slice(14), listclass[3], listclass[1].slice(13), listclass[4]);
       elems[i].remove();
+      this.removeConnectionData(this.module, listclass[2].slice(14), listclass[3], listclass[1].slice(13), listclass[4]);
       this.dispatch('connectionRemoved', { output_id: listclass[2].slice(14), input_id: listclass[1].slice(13), output_class: listclass[3], input_class: listclass[4] } );
     }
   },

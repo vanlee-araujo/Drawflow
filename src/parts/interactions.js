@@ -86,6 +86,9 @@ export default {
     }
     switch (this.elementType(this.ele_selected)) {
       case 'drawflow-node':
+        if(this.multiselect && this.updateMultiSelection(this.ele_selected.id.slice(5), e.ctrlKey || e.metaKey || e.shiftKey)) {
+          break;
+        }
         if(this.node_selected != null) {
           this.node_selected.classList.remove("selected");
           if(this.node_selected != this.ele_selected) {
@@ -110,6 +113,9 @@ export default {
           if(e.target.tagName !== 'SELECT') {
             this.drag = true;
           }
+        }
+        if(this.isNodeLocked(this.ele_selected.id)) {
+          this.drag = false;
         }
         break;
       case 'output':
@@ -215,6 +221,14 @@ export default {
       this.pos_y = e.clientY;
       this.pos_y_start = e.clientY;
     }
+    if(this.multiselect && this.editor_selected && this.editor_mode === 'edit') {
+      if(e.shiftKey) {
+        this.editor_selected = false;
+        this.startSelectionBox(this.pos_x, this.pos_y);
+      } else {
+        this.clearSelection();
+      }
+    }
     if (['input','output','main-path'].includes(this.ele_selected.classList[0])) {
       e.preventDefault();
       // preventDefault also stops the focus: without it the Delete key does not reach the editor
@@ -250,13 +264,11 @@ export default {
       this.pos_x = e_pos_x;
       this.pos_y = e_pos_y;
 
-      this.ele_selected.style.top = (this.ele_selected.offsetTop - y) + "px";
-      this.ele_selected.style.left = (this.ele_selected.offsetLeft - x) + "px";
+      this.dragNodes(x, y);
+    }
 
-      this.drawflow.drawflow[this.module].data[this.ele_selected.id.slice(5)].pos_x = (this.ele_selected.offsetLeft - x);
-      this.drawflow.drawflow[this.module].data[this.ele_selected.id.slice(5)].pos_y = (this.ele_selected.offsetTop - y);
-
-      this.updateConnectionNodes(this.ele_selected.id)
+    if(this.selection_box) {
+      this.updateSelectionBox(e_pos_x, e_pos_y);
     }
 
     if(this.drag_point) {
@@ -319,8 +331,13 @@ export default {
 
     if(this.drag) {
       if(this.pos_x_start != e_pos_x || this.pos_y_start != e_pos_y) {
-        this.dispatch('nodeMoved', this.ele_selected.id.slice(5));
+        this.nodesToDrag().forEach(id => this.dispatch('nodeMoved', id));
       }
+      this.drag_origin = {};
+    }
+
+    if(this.selection_box) {
+      this.finishSelectionBox();
     }
 
     if(this.drag_point) {
@@ -440,8 +457,15 @@ export default {
     if(this.editor_mode === 'fixed' || this.editor_mode === 'view') {
       return false;
     }
+    if (this.multiselect && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' && !this.isTyping(e.target)) {
+      e.preventDefault();
+      this.selectNodes(Object.keys(this.drawflow.drawflow[this.module].data));
+    }
     if (e.key === 'Delete' || (e.key === 'Backspace' && e.metaKey)) {
-      if(this.node_selected != null) {
+      if(this.selected_nodes.length > 0 && !this.isTyping(this.first_click)) {
+        this.selected_nodes.slice().forEach(id => this.removeNodeId(id));
+        this.clearSelection();
+      } else if(this.node_selected != null) {
         if(this.first_click.tagName !== 'INPUT' && this.first_click.tagName !== 'TEXTAREA' && this.first_click.hasAttribute('contenteditable') !== true) {
           this.removeNodeId(this.node_selected.id);
         }
