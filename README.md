@@ -263,6 +263,7 @@ Mehtod | Description
 `zoom_out()` | Decrement zoom -0.1
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
+`updateNodeHtmlFromId(id, html)` | New HTML for a node created with HTML; the `df-*` fields get the values of its data again. Returns `false` for other nodes
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
 `updateNodeDataFromId` | Update data element. Ex: `5, { name: 'Drawflow' }`
 `addNodeInput(id)` | Add input to node. Ex id: `5`
@@ -296,6 +297,7 @@ Event | Return | Description
   `nodeSelected` | id | `id` of Node
   `nodeUnselected` | true | Unselect node
   `nodeMoved` | id | `id` of Node
+  `nodeHtmlChanged` | id | `id` of Node, after `updateNodeHtmlFromId`
   `connectionStart` | { output_id, output_class } | `id` of nodes and output selected
   `connectionCancel` | true | Connection Cancel
   `connectionCreated` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
