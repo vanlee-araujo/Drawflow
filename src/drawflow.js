@@ -1552,6 +1552,7 @@ export default class Drawflow {
 
     }
     this.drawflow.drawflow[moduleName].data[id].inputs["input_"+(numInputs+1)] = { "connections": []};
+    return "input_"+(numInputs+1);
   }
 
   addNodeOutput(id) {
@@ -1569,6 +1570,7 @@ export default class Drawflow {
 
     }
     this.drawflow.drawflow[moduleName].data[id].outputs["output_"+(numOutputs+1)] = { "connections": []};
+    return "output_"+(numOutputs+1);
   }
 
   removeNodeInput(id, input_class) {
