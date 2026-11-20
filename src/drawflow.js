@@ -32,6 +32,9 @@ export default class Drawflow {
     this.draggable_inputs = true;
     this.useuuid = false;
     this.parent = parent;
+    // Optional: function({ output_id, input_id, output_class, input_class }) => boolean.
+    // Returning false blocks the connection (mouse or addConnection).
+    this.connection_validator = null;
 
     this.noderegister = {};
     this.render = render;
@@ -473,7 +476,8 @@ export default class Drawflow {
 
         if(output_id !== input_id && input_class !== false) {
 
-          if(this.container.querySelectorAll('.connection.node_in_'+input_id+'.node_out_'+output_id+'.'+output_class+'.'+input_class).length === 0) {
+          if(this.container.querySelectorAll('.connection.node_in_'+input_id+'.node_out_'+output_id+'.'+output_class+'.'+input_class).length === 0
+            && this.validateConnection(output_id.slice(5), input_id.slice(5), output_class, input_class)) {
           // Conection no exist save connection
 
           this.connection_ele.classList.add("node_in_"+input_id);
@@ -606,6 +610,63 @@ export default class Drawflow {
       this.zoom_refresh();
     }
   }
+  setZoom(value) {
+    this.zoom = Math.min(this.zoom_max, Math.max(this.zoom_min, value));
+    this.zoom_refresh();
+  }
+  setCanvasPosition(x, y) {
+    this.canvas_x = x;
+    this.canvas_y = y;
+    this.dispatch('translate', { x: x, y: y });
+    this.precanvas.style.transform = "translate("+this.canvas_x+"px, "+this.canvas_y+"px) scale("+this.zoom+")";
+  }
+
+  validateConnection(id_output, id_input, output_class, input_class) {
+    if(typeof this.connection_validator !== 'function') {
+      return true;
+    }
+    return this.connection_validator({ output_id: id_output.toString(), input_id: id_input.toString(), output_class: output_class, input_class: input_class }) !== false;
+  }
+
+  // Zoom and pan so that every node (with its ports and connections) fits in the editor
+  zoomFit(options = {}) {
+    const padding = options.padding !== undefined ? options.padding : 20;
+    const minZoom = options.minZoom !== undefined ? options.minZoom : this.zoom_min;
+    const maxZoom = options.maxZoom !== undefined ? options.maxZoom : 1;
+    const elements = this.precanvas.querySelectorAll('.drawflow-node, .drawflow-node .input, .drawflow-node .output, .connection .main-path, .connection .point');
+    if(elements.length === 0) {
+      return null;
+    }
+    // Bounds in canvas units: the canvas is drawn at canvas_x/y with scale zoom
+    const canvasRect = this.precanvas.getBoundingClientRect();
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    elements.forEach(ele => {
+      const rect = ele.getBoundingClientRect();
+      if(rect.width === 0 && rect.height === 0) {
+        return;
+      }
+      left = Math.min(left, (rect.left - canvasRect.left) / this.zoom);
+      top = Math.min(top, (rect.top - canvasRect.top) / this.zoom);
+      right = Math.max(right, (rect.right - canvasRect.left) / this.zoom);
+      bottom = Math.max(bottom, (rect.bottom - canvasRect.top) / this.zoom);
+    });
+    if(left === Infinity) {
+      return null;
+    }
+    const width = Math.max(1, this.container.clientWidth - 2 * padding);
+    const height = Math.max(1, this.container.clientHeight - 2 * padding);
+    let zoom = Math.min(width / Math.max(1, right - left), height / Math.max(1, bottom - top));
+    zoom = Math.round(Math.min(maxZoom, Math.max(minZoom, zoom)) * 1000) / 1000;
+    // translate(x, y) scale(zoom) around transform-origin (o): screen = o + translate + zoom * (point - o)
+    const origin = getComputedStyle(this.precanvas).transformOrigin.split(' ').map(parseFloat);
+    const target_x = padding + (width - zoom * (right - left)) / 2 - this.precanvas.offsetLeft;
+    const target_y = padding + (height - zoom * (bottom - top)) / 2 - this.precanvas.offsetTop;
+    this.zoom = zoom;
+    this.zoom_last_value = zoom;
+    this.dispatch('zoom', zoom);
+    this.setCanvasPosition(target_x - origin[0] - zoom * (left - origin[0]), target_y - origin[1] - zoom * (top - origin[1]));
+    return { zoom: zoom, x: this.canvas_x, y: this.canvas_y };
+  }
 
   createCurvature(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
     var line_x = start_pos_x;
@@ -707,7 +768,7 @@ export default class Drawflow {
         }
       }
       // Check connection exist
-      if(exist === false) {
+      if(exist === false && this.validateConnection(id_output, id_input, output_class, input_class)) {
         //Create Connection
         this.drawflow.drawflow[nodeOneModule].data[id_output].outputs[output_class].connections.push( {"node": id_input.toString(), "output": input_class});
         this.drawflow.drawflow[nodeOneModule].data[id_input].inputs[input_class].connections.push( {"node": id_output.toString(), "input": output_class});
@@ -1166,6 +1227,19 @@ export default class Drawflow {
   getNodeFromId(id) {
     var moduleName = this.getModuleFromNodeId(id)
     return JSON.parse(JSON.stringify(this.drawflow.drawflow[moduleName].data[id]));
+  }
+  setNodePosition(id, pos_x, pos_y) {
+    var moduleName = this.getModuleFromNodeId(id);
+    var dataNode = this.drawflow.drawflow[moduleName].data[id];
+    dataNode.pos_x = pos_x;
+    dataNode.pos_y = pos_y;
+    if(this.module === moduleName) {
+      var node = this.container.querySelector('#node-'+id);
+      node.style.left = pos_x + "px";
+      node.style.top = pos_y + "px";
+      this.updateConnectionNodes('node-'+id);
+    }
+    this.dispatch('nodeMoved', id.toString());
   }
   getNodesFromName(name) {
     var nodes = [];
