@@ -170,6 +170,7 @@ Parameter | Type | Default | Description
 `reroute_width` | Number | 6 | Width of reroute
 `line_path` | Number | 5 | Width of line
 `force_first_input` | Boolean | false | Force the first input to drop the connection on top of the node
+`sanitize_html` | Function | null | Called with the HTML of a node before it is written into the page (`addNode` and `import`). Ex: `html => DOMPurify.sanitize(html)`. The data keeps the original HTML
 `editor_mode` | Text | `edit` | `edit` for edit, `fixed` for nodes fixed but their input fields available, `view` for view only
 `zoom` | Number | 1 | Default zoom
 `zoom_max` | Number | 1.6 | Default zoom max

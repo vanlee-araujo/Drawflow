@@ -29,6 +29,8 @@ export default class Drawflow {
     this.line_path = 5;
     this.first_click = null;
     this.force_first_input = false;
+    // Optional: function(html) => html. Cleans the HTML of nodes before it is written into the page
+    this.sanitize_html = null;
     this.draggable_inputs = true;
     this.useuuid = false;
     this.parent = parent;
@@ -1224,7 +1226,7 @@ export default class Drawflow {
     const content = document.createElement('div');
     content.classList.add("drawflow_content_node");
     if(typenode === false) {
-      content.innerHTML = html;
+      content.innerHTML = this.nodeHtml(html);
     } else if (typenode === true) {
       content.appendChild(this.noderegister[html].html.cloneNode(true));
     } else {
@@ -1309,6 +1311,11 @@ export default class Drawflow {
     return newNodeId;
   }
 
+  // HTML written into a node: passed through sanitize_html when the application gives one
+  nodeHtml(html) {
+    return typeof this.sanitize_html === 'function' ? this.sanitize_html(html) : html;
+  }
+
   addNodeImport (dataNode, precanvas) {
     const parent = document.createElement('div');
     parent.classList.add("parent-node");
@@ -1362,7 +1369,7 @@ export default class Drawflow {
     content.classList.add("drawflow_content_node");
 
     if(dataNode.typenode === false) {
-      content.innerHTML = dataNode.html;
+      content.innerHTML = this.nodeHtml(dataNode.html);
     } else if (dataNode.typenode === true) {
       content.appendChild(this.noderegister[dataNode.html].html.cloneNode(true));
     } else {
