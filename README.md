@@ -165,6 +165,10 @@ Parameter | Type | Default | Description
 `reroute` | Boolean | false | Active reroute
 `reroute_fix_curvature` | Boolean | false | Fix adding points
 `curvature` | Number | 0.5 | Curvature
+`curvature_backward` | Boolean | false | Connection to a node behind the output (on the left; above in vertical) is drawn as a loop around the nodes
+`backward_offset` | Number | 60 | Distance the loop goes out of the output / into the input
+`backward_depth` | Number | 80 | Distance the loop goes below the lowest port (nodes on the same row)
+`backward_row_gap` | Number | 120 | Vertical distance from which the loop crosses between rows instead of going below
 `reroute_curvature_start_end` | Number | 0.5 | Curvature reroute first point and las point
 `reroute_curvature` | Number | 0.5 | Curvature reroute
 `reroute_width` | Number | 6 | Width of reroute
@@ -400,6 +404,11 @@ Example of exported data:
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
 There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
+
+## Credits
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
+
+- Loop for connections to a node behind the output: Guillermo Gefaell ([konum](https://github.com/konum), PR #947).
 
 ## License
 MIT License
