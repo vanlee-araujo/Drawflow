@@ -178,6 +178,7 @@ Parameter | Type | Default | Description
 `zoom_last_value` | Number | 1 | Default zoom last value
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
+`connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
 
 ### Reroute
 Active reroute connections. Use before `start` or `import`.
@@ -261,6 +262,9 @@ Mehtod | Description
 --- | ---
 `zoom_in()` | Increment zoom +0.1
 `zoom_out()` | Decrement zoom -0.1
+`setZoom(value)` | Set zoom, limited to `zoom_min` and `zoom_max`. Ex: `0.8`
+`setCanvasPosition(x, y)` | Move (pan) the editor canvas. Ex: `0, 0`
+`setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
@@ -281,6 +285,11 @@ Mehtod | Description
 
 ```javascript
 editor.removeNodeId('node-4');
+```
+
+```javascript
+// Block connections from a node to itself
+editor.connection_validator = ({ output_id, input_id }) => output_id !== input_id;
 ```
 
 ## Events
