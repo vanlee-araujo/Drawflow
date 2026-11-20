@@ -5,3 +5,6 @@ index.html
 test.html
 gulpfile.js
 webpack.config.js
+Dockerfile
+docker-compose.yml
+test/

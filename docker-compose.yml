@@ -1,5 +1,6 @@
 # docker compose run --rm build        -> builds and writes the CDN files to ./dist
 # docker compose --profile tools run --rm test -> browser tests (Chromium, Firefox, WebKit)
+# docker compose --profile tools run --rm audit -> known vulnerabilities of the dependencies (osv-scanner)
 name: drawflow
 
 services:
@@ -20,3 +21,10 @@ services:
       target: test
     image: drawflow-test
     ipc: host
+
+  audit:
+    profiles: [tools]
+    build:
+      context: .
+      target: audit
+    image: drawflow-audit

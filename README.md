@@ -47,6 +47,7 @@ users asked for most. Without the new options it works like 0.0.60, apart from t
 
 **Integration**
 - Import and export as JSON, with repair of broken connections on import
+- Optional sanitizer for the HTML of nodes (`sanitize_html`), for flows from untrusted sources
 - Events for every change
 - Editor modes `edit`, `fixed` and `view`
 - Vue 2, Vue 3 and Nuxt; TypeScript types included
@@ -57,14 +58,14 @@ users asked for most. Without the new options it works like 0.0.60, apart from t
 **CDN** (fixed version, see the [releases](https://github.com/vanlee-araujo/Drawflow/releases)):
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.2.0/dist/drawflow.min.css">
-<script src="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.2.0/dist/drawflow.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.3.0/dist/drawflow.min.css">
+<script src="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.3.0/dist/drawflow.min.js"></script>
 ```
 
 **npm**, from this repository:
 
 ```bash
-npm i github:vanlee-araujo/Drawflow#0.2.0
+npm i github:vanlee-araujo/Drawflow#0.3.0
 ```
 
 The `drawflow` package on the npm registry is the original 0.0.60, without the changes of this project.
@@ -135,6 +136,7 @@ Vue components are registered with `registerNode(name, component, props, options
 | [Playground](docs/playground.html) | Every feature in one page (open it from a clone, or [online](https://vanlee-araujo.github.io/Drawflow/docs/playground.html)) |
 | [Architecture](ARCHITECTURE.md) | Source layout, flows and design decisions |
 | [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Proposals](PROPOSALS.md) | What was delivered, what is planned and what is under discussion |
+| [Security policy](SECURITY.md) | How to report a vulnerability |
 
 Other examples: the [original demo](docs/index.html) and Drawflow in a [custom element](docs/drawflow-element.html)
 (based on [LitElement](https://lit.dev)). The [theme generator](https://jerosoler.github.io/drawflow-theme-generator/) of

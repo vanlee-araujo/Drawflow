@@ -11,17 +11,19 @@ For what the library does, see the [manual](docs/MANUAL.md); for the public API,
 | Parts | `src/parts/*.js` | Methods of the editor grouped by subject, mixed into `Drawflow.prototype` |
 | Minimap | `src/drawflow-minimap.js` | Optional `DrawflowMinimap` class, built as a separate file; uses only the public API of the editor |
 | Styles | `src/drawflow.css` | Default look; every color is a `--drawflow-*` CSS variable |
-| Types | `types/*.d.ts` | TypeScript declarations of the public API, written by hand |
+| Types | `types/*.d.ts` | TypeScript declarations of the public API, written by hand: the class (`drawflow.d.ts`), options of the fork (`drawflow-options.d.ts`), `on()` overloads (`drawflow-events.d.ts`), data and payloads (`drawflow-data.d.ts`), minimap |
 | Build output | `dist/` | `drawflow.min.js`, `drawflow-minimap.min.js` (UMD), `drawflow.min.css`, `drawflow.style.js` (CSS as a LitElement module) |
-| Tests | `test/` | Browser tests with Playwright in Chromium, Firefox and WebKit, run against `dist/` |
+| Tests | `test/` | `browser.test.js` runs the suites of `test/suites/` (with `helpers.js`) in Chromium, Firefox and WebKit against `dist/`; `types.test.ts` is the contract of the types |
 | Pages | `docs/playground.html`, `docs/index.html`, `index.html`, `test.html` | Playground of the fork, original demo, local demo and manual test page |
+| Vendored libraries | `docs/vendor/` | Libraries of the example pages (icons, dialogs, font, dagre), listed with version, license and origin in [VENDOR.md](docs/vendor/VENDOR.md) |
 
 ### Parts
 
 | File | Subject |
 |---|---|
 | `interactions.js` | Mouse, touch and keyboard handlers: `click`, `position` (move), `dragEnd`, `contextmenu`, `key`, `dblclick`, pinch zoom |
-| `nodes.js` | Nodes: `addNode`, `addNodeImport` (drawing from data), `df-*` field binding, inputs and outputs, removal, locking |
+| `nodes.js` | Nodes: `addNode`, `addNodeImport` (drawing from data), `df-*` field binding, `sanitize_html`, removal, locking |
+| `ports.js` | Inputs and outputs: add, remove and renumber them, keeping their connections |
 | `connections.js` | Connections: drawing, `addConnection`, `updateConnectionNodes` (redraw of the lines of a node), validation and removal |
 | `curves.js` | SVG paths: `createCurvature` (horizontal and vertical), backward loop |
 | `reroute.js` | Reroute points: create, remove, draw from data |
@@ -107,7 +109,9 @@ snapshot of all modules (`history_limit` steps). Undo and redo `import` a snapsh
 - `npm run build`: webpack 5 builds two UMD bundles (`Drawflow`, `DrawflowMinimap`); gulp 5 minifies the CSS and
   wraps it as `dist/drawflow.style.js`.
 - `npm test`: `test/browser.test.js` opens `test/blank.html` from the disk in the three Playwright browsers, loads
-  `dist/` and checks the public behavior.
+  `dist/` and runs the suites of `test/suites/`; the `pages` suite opens the example pages and fails on any request
+  outside the project. `npm run test:types` compiles `test/types.test.ts` with `tsc --strict`.
+- `docker compose --profile tools run --rm audit`: osv-scanner on `package-lock.json`.
 - Docker: the `Dockerfile` has the stages `deps` (`npm ci`), `build` (`npm run build`), `test` (the
   `mcr.microsoft.com/playwright:v1.48.2-jammy` image, the same as the CI), `export` (copies `dist/` to a bind mount)
   and `cdn` (final image with only `/dist`). `docker-compose.yml` exposes `build` (writes `./dist`) and `test`
@@ -123,6 +127,8 @@ snapshot of all modules (`history_limit` steps). Undo and redo `import` a snapsh
   instance (for example `createCurvature`).
 - **Compatibility first.** New options are off by default; without them the editor works like the original
   0.0.60, apart from documented fixes.
+- **The application chooses the sanitizer.** `sanitize_html` receives a function instead of bundling one, for
+  the same reason as dagre; the data keeps the original HTML.
 - **Optional libraries are injected.** `autoLayout(dagre, options)` receives dagre from the application, so the
   library keeps no dependency and the application chooses the version.
 - **Snapshot history.** Undo and redo store the whole data as JSON instead of a list of commands: simple and
@@ -138,6 +144,6 @@ Signals from `harpia code lint src` (harpia's default limits), kept as they are 
   reroute points.
 - `click` in `interactions.js` has a cyclomatic complexity of 44; `key`, `dragEnd` and `start` are above 15.
 - `var` is still used in most of the code inherited from the original (279 places in `src/`).
-- `nodes.js` has 613 lines, above the 600 lines of the project rule; the `insertObjectkeys` helper is repeated
-  three times in it.
+- The `insertObjectkeys` helper is repeated three times in `nodes.js`.
+- `interactions.js` (522 lines) and `connections.js` (536 lines) are above the 500-line alert of the project rule.
 - The connection identity depends on the order of the classes of its `svg` (see [DOM model](#dom-model)).

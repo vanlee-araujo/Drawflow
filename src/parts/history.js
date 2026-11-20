@@ -1,6 +1,6 @@
 // Undo and redo with snapshots of the data. Changes close together (a node and its connections,
 // a whole layout, typing in a field) become one step
-const HISTORY_EVENTS = ['nodeCreated', 'nodeRemoved', 'nodeMoved', 'nodeDataChanged', 'nodeLocked', 'connectionCreated', 'connectionRemoved',
+const HISTORY_EVENTS = ['nodeCreated', 'nodeRemoved', 'nodeMoved', 'nodeDataChanged', 'nodeHtmlChanged', 'nodeLocked', 'connectionCreated', 'connectionRemoved',
   'connectionLabelChanged', 'addReroute', 'removeReroute', 'rerouteMoved', 'moduleCreated', 'moduleRemoved', 'import'];
 
 export default {

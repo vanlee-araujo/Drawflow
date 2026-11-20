@@ -27,6 +27,7 @@ and events; this manual explains the concepts behind them.
 - [Robustness](#robustness)
 - [Editing tools](#editing-tools)
 - [Previews and minimap](#previews-and-minimap)
+- [Security: node HTML](#security-node-html)
 - [Known limitations](#known-limitations)
 
 ## What Drawflow is
@@ -158,7 +159,8 @@ start dragging the node, which makes selecting text possible.
 | Right click (long press on touch) on a selected node or connection | shows the `x` remove button |
 | Drag the empty canvas | pans |
 | Ctrl + wheel, pinch | zoom |
-| Double click on a selected connection / on a point | adds / removes a reroute point (with `reroute`) |
+| Double click on a selected connection / on a point | adds / removes a reroute point (with `reroute`); `connectionDblClick` fires on any connection |
+| The window loses the focus while dragging | the drag ends where the pointer was; a connection being drawn is cancelled |
 
 ## Data format
 
@@ -217,6 +219,8 @@ div.parent-drawflow              ← your container
   `.input`, `.output`, `.main-path`, `.main-path.selected`, `.point`, `.drawflow-delete` (the
   remove button). The [theme generator](https://jerosoler.github.io/drawflow-theme-generator/)
   builds a theme visually.
+- While dragging, the container gets `.drawflow-dragging` (nodes and reroute points, `cursor: move`) or
+  `.drawflow-panning` (canvas, `cursor: grabbing`).
 - Connections are absolutely positioned SVGs; their position follows the **center of the port
   elements**, so ports may have any size and place, as long as connections are redrawn with
   `updateConnectionNodes('node-5')` when a node changes size.
@@ -327,6 +331,20 @@ and `moduleChanged`, because those rebuild the nodes.
 
 The minimap is the optional file `dist/drawflow-minimap.min.js`: `new DrawflowMinimap(editor, { width, height })`.
 It shows the flow and the visible area; click or drag on it to move the view.
+
+## Security: node HTML
+
+The HTML of a node (`typenode = false`) is written into the page as HTML, on `addNode` and on `import`. A flow
+that comes from users or from another system can carry scripts (`<img onerror>`, `<a href="javascript:">`).
+Give the editor a sanitizer for these cases:
+
+```javascript
+editor.sanitize_html = html => DOMPurify.sanitize(html);   // or the application's own function
+```
+
+The function runs before the HTML is written; the data (`html` in the export) keeps what was given, so the same
+flow can be shown with another sanitizer later. Registered nodes (`typenode = true`) and Vue components are
+created by the application and are not passed through it.
 
 ## Known limitations
 

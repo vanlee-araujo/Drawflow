@@ -3,6 +3,37 @@
 What each version delivered. Versions follow [semantic versioning](https://semver.org); the issue and pull request
 numbers refer to the [original project](https://github.com/jerosoler/Drawflow).
 
+## 0.3.0 - 2026-11-20
+
+Project and documentation, a sanitizer for node HTML and small additions asked for in the forks of the original.
+New options are off by default; nothing changes for code written for 0.2.0.
+
+### Added
+- `sanitize_html`: optional function that cleans the HTML of nodes before it is written into the page, on `addNode`
+  and `import` (idea from the imodoye94 fork)
+- `addNodeInput` and `addNodeOutput` return the name of the new port (sysrun)
+- `nodePositionChanged` event `{ id, pos_x, pos_y }`, after a drag or `setNodePosition`; `nodeMoved` is unchanged (signait)
+- A drag ends when the window loses the focus; a connection being drawn is cancelled (phosph)
+- Cursor classes while dragging: `.drawflow-dragging` (`move`) and `.drawflow-panning` (`grabbing`) (decisionrules)
+- `connectionDblClick` event with the connection data (makken772, sksithik)
+- `getAllNodes(module)` and `getConnectedNodes(id, port)` (mikebreeze, zunayed-relisource)
+- `updateNodeHtmlFromId(id, html)` and the `nodeHtmlChanged` event (brneas)
+- `addReroutePoint(...)`: reroute points from code (phosph)
+
+### Documentation
+- README as the entry page; [API reference](docs/API.md), [architecture](ARCHITECTURE.md), changelog, roadmap by
+  stages, [proposals](PROPOSALS.md) with a survey of the 79 forks of the original that have their own commits
+- [Security policy](SECURITY.md) and a manual section on node HTML
+
+### Project
+- Build, tests and vulnerability check with Docker Compose (`build`, `test` and `audit` in the profile `tools`);
+  they build the same way as the GitHub Actions workflow, which is unchanged
+- Example pages without CDN: libraries in `docs/vendor/`, with version, license and origin
+- Tests split in `test/suites/`, a test that opens the example pages without external requests, and a contract test
+  of the TypeScript declarations (`npm run test:types`)
+- Source and types split so that no file has more than 600 lines (`src/parts/ports.js`, `types/drawflow-*.d.ts`)
+- Pull requests in the fork, one subject each, from the original code (base branch `upstream`)
+
 ## 0.2.0 - 2026-11-06
 
 Editing tools, previews and a project that tests itself. New options are off by default.

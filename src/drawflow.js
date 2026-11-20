@@ -6,6 +6,7 @@ import connections from './parts/connections.js';
 import arrows from './parts/arrows.js';
 import reroute from './parts/reroute.js';
 import nodes from './parts/nodes.js';
+import ports from './parts/ports.js';
 import data from './parts/data.js';
 import selection from './parts/selection.js';
 import labels from './parts/labels.js';
@@ -72,6 +73,9 @@ export default class Drawflow {
     // Returning false keeps the node or the connection (Delete key, ✕ button and the remove methods)
     this.node_remove_validator = null;
     this.connection_remove_validator = null;
+    // Optional: function(html) => html. Cleans the HTML of nodes before it is written into the page
+    // (addNode and import), for flows that come from untrusted sources. Ex: html => DOMPurify.sanitize(html)
+    this.sanitize_html = null;
     // Grid size for dragged nodes (0: no grid), and limits { min_x, min_y, max_x, max_y } (any of them)
     this.snap_grid = 0;
     this.node_bounds = null;
@@ -152,6 +156,8 @@ export default class Drawflow {
     };
     window.addEventListener('mousemove', this.window_mousemove);
     window.addEventListener('mouseup', this.window_mouseup);
+    this.window_blur = () => this.cancelPointer();
+    window.addEventListener('blur', this.window_blur);
     if(this.observe_node_resize && typeof ResizeObserver !== 'undefined') {
       this.resize_observer = new ResizeObserver(entries => {
         entries.forEach(entry => {
@@ -282,7 +288,7 @@ export default class Drawflow {
 }
 
 // Each file in parts/ adds its methods to the class, not enumerable like the ones written above
-[interactions, view, layout, curves, connections, arrows, reroute, nodes, data, selection, labels, history, preview].forEach(methods => {
+[interactions, view, layout, curves, connections, arrows, reroute, nodes, ports, data, selection, labels, history, preview].forEach(methods => {
   Object.keys(methods).forEach(name => {
     Object.defineProperty(Drawflow.prototype, name, { value: methods[name], writable: true, configurable: true });
   });

@@ -3,7 +3,18 @@
 // Declare the workflow module to be able to used it in typescript
 // this file must be defined in the include in tsconfig.json
 
-export default class Drawflow {
+import { DrawflowEvents } from "./drawflow-events";
+import { DrawflowOptions } from "./drawflow-options";
+import {
+    AutoLayoutOptions, ConnectionArrow, ConnectionDirection, DrawFlowEditorMode, DrawflowExport,
+    DrawflowNode, PreviewOptions, ZoomFitOptions,
+} from "./drawflow-data";
+
+export * from "./drawflow-data";
+export { DrawflowEvents } from "./drawflow-events";
+export { DrawflowOptions } from "./drawflow-options";
+
+declare class Drawflow {
     constructor(element: HTMLElement, render?: object, parent?: object);
 
     /**
@@ -325,13 +336,13 @@ export default class Drawflow {
      * Add input to node. Ex id: 5
      * @param id
      */
-    addNodeInput(id: string | number): void;
+    addNodeInput(id: string | number): string;
 
     /**
      * Add output to node. Ex id: 5
      * @param id
      */
-    addNodeOutput(id: string | number): void;
+    addNodeOutput(id: string | number): string;
 
     /**
      * Remove input to node. Ex id: 5, input_2
@@ -417,184 +428,6 @@ export default class Drawflow {
      */
     registerNode(name: string, component: any, props: any, options: any): void;
 
-    /**
-     * @param eventName
-     * @param callback (event: id of Node)
-     */
-    /* tslint:disable:unified-signatures */
-    on(eventName: "nodeCreated", callback: (event: number) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id of Node)
-     */
-    on(eventName: "nodeRemoved", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id of Node df-* attributes changed.)
-     */
-    on(eventName: "nodeDataChanged", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id of Node)
-     */
-    on(eventName: "nodeSelected", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: true)
-     */
-    on(eventName: "nodeUnselected", callback: (event: boolean) => void): void;
-    /**
-     * @param eventName
-     * @param callback
-     */
-    on(eventName: "nodeMoved", callback: (event: string) => void): void;
-    /**
-     * Called when starting to create a connection
-     * @param eventName
-     * @param callback
-     */
-    on(eventName: "connectionStart", callback: (event: ConnectionStartEvent) => void): void;
-    /**
-     * Called when the connection creation was canceled
-     * @param eventName
-     * @param callback (event: true)
-     */
-    on(eventName: "connectionCancel", callback: (event: boolean) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id's of nodes and output/input selected)
-     */
-    on(eventName: "connectionCreated", callback: (event: ConnectionEvent) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id's of nodes and output/input selected)
-     */
-    on(eventName: "connectionRemoved", callback: (event: ConnectionEvent) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id's of nodes and output/input selected)
-     */
-    on(eventName: "connectionSelected", callback: (event: ConnectionEvent) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: true)
-     */
-    on(eventName: "connectionUnselected", callback: (event: boolean) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id of Node output)
-     */
-    on(eventName: "addReroute", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: id of Node output)
-     */
-    on(eventName: "removeReroute", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: name of Module)
-     */
-    on(eventName: "moduleCreated", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: name of Module)
-     */
-    on(eventName: "moduleChanged", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: name of Module)
-     */
-    on(eventName: "moduleRemoved", callback: (event: string) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: mouse event)
-     */
-    on(eventName: "click", callback: (event: MouseEvent) => void): void;
-    /**
-     * Once the click changes have been made
-     * @param eventName
-     * @param callback
-     */
-    on(eventName: "clickEnd", callback: (event: any) => void): void;
-    /**
-     * Click second button mouse event
-     * @param eventName
-     * @param callback
-     */
-    on(eventName: "contextmenu", callback: (event: any) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: position)
-     */
-    on(eventName: "mouseMove", callback: (event: MousePositionEvent) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: keyboard event)
-     */
-    on(eventName: "keydown", callback: (event: KeyboardEvent) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: Level of zoom)
-     */
-    on(eventName: "zoom", callback: (event: any) => void): void;
-    /**
-     * @param eventName
-     * @param callback (event: position)
-     */
-    on(eventName: "translate", callback: (event: MousePositionEvent) => void): void;
-    /**
-     * Finish import
-     * @param eventName
-     * @param callback
-     */
-    on(eventName: "import", callback: (event: any) => void): void;
-    /**
-     * Data export
-     * @param eventName
-     * @param callback
-     */
-    on(eventName: "export", callback: (event: any) => void): void;
-    /* tslint:enable:unified-signatures */
-
-    /** Connection to a node behind the output drawn as a loop. @default false */
-    curvature_backward: boolean;
-    /** @default 60 */
-    backward_offset: number;
-    /** @default 80 */
-    backward_depth: number;
-    /** @default 120 */
-    backward_row_gap: number;
-    /** Returning false blocks the connection (mouse or addConnection). @default null */
-    connection_validator: ((connection: ConnectionEvent) => boolean | void) | null;
-    /** @default 'none' */
-    connection_arrow: ConnectionArrow;
-    /** @default 14 */
-    connection_arrow_size: number;
-    /** Distance from the port center to the arrow tip. @default 12 */
-    connection_arrow_offset: number;
-    /** @default 'horizontal' */
-    connection_direction: ConnectionDirection;
-    /** @default 'connection-target' */
-    connection_target_class: string;
-    /** Redraw connections when a node changes size. Set before start(). @default true */
-    observe_node_resize: boolean;
-    /** Mouse wheel zooms only with ctrl. @default true */
-    zoom_use_ctrl_key: boolean;
-    /** Returning false keeps the node. @default null */
-    node_remove_validator: ((id: string) => boolean | void) | null;
-    /** Returning false keeps the connection. @default null */
-    connection_remove_validator: ((connection: ConnectionEvent) => boolean | void) | null;
-    /** Grid size for dragged nodes, 0 for none. @default 0 */
-    snap_grid: number;
-    /** Limits for dragged nodes. @default null */
-    node_bounds: NodeBounds | null;
-    /** Ctrl/Shift + click and Shift + drag select several nodes. @default false */
-    multiselect: boolean;
-    /** Undo and redo. Set before start(). @default false */
-    history: boolean;
-    /** @default 50 */
-    history_limit: number;
-
     removeConnection(): boolean | void;
     removeListener(eventName: string, callback: (event: any) => void): boolean | void;
     dispatch(eventName: string, details?: any): boolean | void;
@@ -635,125 +468,20 @@ export default class Drawflow {
     /** Draw a flow as a small picture in an element */
     renderPreview(element: HTMLElement, options?: PreviewOptions): { svg: SVGSVGElement; bounds: { x: number; y: number; width: number; height: number } } | null;
 
-    on(eventName: "moduleChanging", callback: (event: string) => void): void;
-    on(eventName: "mouseUp", callback: (event: any) => void): void;
-    on(eventName: "rerouteMoved", callback: (event: string) => void): void;
-    on(eventName: "nodeLocked", callback: (event: { id: string; locked: boolean }) => void): void;
-    on(eventName: "selectionChanged", callback: (event: string[]) => void): void;
-    on(eventName: "connectionLabelChanged", callback: (event: ConnectionEvent & { label: string }) => void): void;
-    on(eventName: "historyChanged", callback: (event: { canUndo: boolean; canRedo: boolean }) => void): void;
-    on(eventName: string, callback: (event: any) => void): void;
+    /** Ids of the nodes of a module (the current one by default) */
+    getAllNodes(moduleName?: string): string[];
+    /** Ids of the nodes connected to a node, on every port or on one ('input_1', 'output_2') */
+    getConnectedNodes(id: string | number, port?: string): string[];
+    /** New HTML for a node created with HTML (typenode false); false for other nodes */
+    updateNodeHtmlFromId(id: string | number, html: string): boolean;
+    /** A reroute point from code, at the end of the points or at index */
+    addReroutePoint(id_output: string | number, id_input: string | number, output_class: string, input_class: string, pos_x: number, pos_y: number, index?: number): boolean;
+    /** Ends a drag in progress (the editor calls it when the window loses the focus) */
+    cancelPointer(): boolean;
 }
 
-export type ConnectionArrow = "none" | "end" | "start" | "both";
-export type ConnectionDirection = "horizontal" | "vertical";
+// Options of the fork and the on() overloads, declared in their own files and merged into the class
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface Drawflow extends DrawflowOptions, DrawflowEvents {}
 
-export interface NodeBounds {
-    min_x?: number;
-    min_y?: number;
-    max_x?: number;
-    max_y?: number;
-}
-
-export interface ZoomFitOptions {
-    padding?: number;
-    minZoom?: number;
-    maxZoom?: number;
-}
-
-export interface AutoLayoutOptions {
-    direction?: "LR" | "RL" | "TB" | "BT";
-    nodesep?: number;
-    ranksep?: number;
-    edgesep?: number;
-    fit?: boolean;
-    fitOptions?: ZoomFitOptions;
-}
-
-export interface PreviewOptions {
-    /** An export(), a module ({ data }) or its nodes. Default: the current module */
-    data?: any;
-    module?: string;
-    direction?: ConnectionDirection;
-    padding?: number;
-    nodeWidth?: number;
-    nodeHeight?: number;
-    color?: (node: DrawflowNode) => string | null | undefined;
-}
-
-export interface ConnectionEvent {
-    /**
-     * outputNodeId
-     */
-    output_id: string;
-
-    /**
-     * inputNodeId
-     */
-    input_id: string;
-
-    /**
-     * name of the output
-     */
-    output_class: string;
-
-    /**
-     * name of the input
-     */
-    input_class: string;
-}
-
-export interface ConnectionStartEvent {
-    /**
-     * outputNodeId
-     */
-    output_id: string;
-
-    /**
-     * name of the output
-     */
-    output_class: string;
-}
-
-export interface MousePositionEvent {
-    x: number;
-    y: number;
-}
-
-export interface DrawflowExport {
-    drawflow: {
-        Home: DrawflowModuleData; // always present
-        [customModuleName: string]: DrawflowModuleData;
-    };
-}
-
-export interface DrawflowModuleData {
-    data: {
-        [nodeKey: string]: DrawflowNode;
-    };
-}
-
-export interface DrawflowNode {
-    class: string;
-    data: any;
-    html: string;
-    id: number;
-    inputs: Record<string, DrawflowConnection>;
-    name: string;
-    outputs: Record<string, DrawflowConnection>;
-    pos_x: number;
-    pos_y: number;
-    typenode: boolean;
-}
-
-export interface DrawflowConnection {
-    connections: DrawflowConnectionDetail[];
-}
-
-export interface DrawflowConnectionDetail {
-    output: string;
-    input: string;
-    node: string;
-}
-
-export type DrawFlowEditorMode = "edit" | "fixed" | "view";
+export default Drawflow;

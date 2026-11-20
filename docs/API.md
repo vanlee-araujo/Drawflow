@@ -66,6 +66,7 @@ Parameter | Type | Default | Description
 `multiselect` | Boolean | false | Ctrl/Shift + click and Shift + drag on the canvas select several nodes; they move and are deleted together; Ctrl+A selects all
 `history` | Boolean | false | Undo and redo (Ctrl+Z, Ctrl+Y, `undo()`, `redo()`). Set before `start()`
 `history_limit` | Number | 50 | Steps kept for undo
+`sanitize_html` | Function | null | Called with the HTML of a node (`typenode` `false`) before it is written into the page, by `addNode` and `import`; returns the clean HTML. Ex: `html => DOMPurify.sanitize(html)`. The data keeps the original HTML
 `connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
 
 ## Nodes
@@ -131,10 +132,14 @@ Method | Description
 `autoLayout(dagre, options)` | Arrange the nodes in layers with [dagre](https://github.com/dagrejs/dagre), loaded by you. Options: `direction` (`LR`, `TB`, `RL`, `BT`; default from `connection_direction`), `nodesep` (40), `ranksep` (70), `edgesep` (10), `fit` (true), `fitOptions` (for `zoomFit`). Reroute points are removed
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
+`getAllNodes(module)` | Ids of the nodes of a module, the current one by default
+`getConnectedNodes(id, port)` | Ids of the nodes connected to a node, on every port or on one. Ex: `5` or `5, 'output_1'`
+`updateNodeHtmlFromId(id, html)` | New HTML for a node created with HTML (`typenode` `false`): the `df-*` fields get the values of its data again and `sanitize_html` applies. Returns `false` for other nodes
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
 `updateNodeDataFromId` | Update data element. Ex: `5, { name: 'Drawflow' }`
-`addNodeInput(id)` | Add input to node. Ex id: `5`
-`addNodeOutput(id)` | Add output to node. Ex id: `5`
+`addNodeInput(id)` | Add input to node and return its name (`'input_3'`). Ex id: `5`
+`addNodeOutput(id)` | Add output to node and return its name (`'output_3'`). Ex id: `5`
+`addReroutePoint(id_output, id_input, output_class, input_class, pos_x, pos_y, index)` | Reroute point from code, at the end of the points or at `index`. Saved in the data; drawn, like on import, only with `reroute`
 `removeNodeInput(id, input_class)` | Remove input to node. Ex id: `5`, `input_2`
 `removeNodeOutput(id, output_class)` | Remove output to node. Ex id: `5`, `output_2`
 `addConnection(id_output, id_input, output_class, input_class)` | Add connection. Ex: `15,16,'output_1','input_1'`
@@ -164,11 +169,14 @@ Event | Return | Description
 `nodeSelected` | id | `id` of Node
 `nodeUnselected` | true | Unselect node
 `nodeMoved` | id | `id` of Node
+`nodePositionChanged` | { id, pos_x, pos_y } | New position of a node, after a drag or `setNodePosition`
+`nodeHtmlChanged` | id | `id` of Node, after `updateNodeHtmlFromId`
 `connectionStart` | { output_id, output_class } | `id` of nodes and output selected
 `connectionCancel` | true | Connection Cancel
 `connectionCreated` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
 `connectionRemoved` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
 `connectionSelected` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
+`connectionDblClick` | { output_id, input_id, output_class, input_class } | Double click on a connection
 `connectionUnselected` | true | Unselect connection
 `addReroute` | id | `id` of Node output
 `removeReroute` | id | `id` of Node output

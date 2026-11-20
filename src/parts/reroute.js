@@ -95,6 +95,53 @@ export default {
     this.updateConnectionNodes(nodeUpdate);
   },
 
+  // A reroute point from code, at the end of the points of the connection or at index. Like import, it is
+  // drawn only with reroute on; the point is always saved in the data
+  addReroutePoint(id_output, id_input, output_class, input_class, pos_x, pos_y, index) {
+    const connection = this.connectionData(id_output, id_input, output_class, input_class);
+    if(!connection) {
+      return false;
+    }
+    if(connection.points === undefined) {
+      connection.points = [];
+    }
+    const at = index === undefined ? connection.points.length : Math.max(0, Math.min(index, connection.points.length));
+    connection.points.splice(at, 0, { pos_x: pos_x, pos_y: pos_y });
+    const out = this.nodeKey(id_output);
+    if(this.reroute && this.getModuleFromNodeId(out) === this.module) {
+      this.redrawReroutePoints(out, this.nodeKey(id_input), output_class, input_class, connection.points);
+      this.updateConnectionNodes('node-' + out);
+    }
+    this.dispatch('addReroute', out);
+    return true;
+  },
+
+  // Rebuilds the paths and points of one connection from its data
+  redrawReroutePoints(id_output, id_input, output_class, input_class, points) {
+    const ele = this.container.querySelector('.connection.node_in_node-' + id_input + '.node_out_node-' + id_output + '.' + output_class + '.' + input_class);
+    if(!ele) {
+      return;
+    }
+    Array.from(ele.querySelectorAll('.point')).forEach(point => point.remove());
+    Array.from(ele.querySelectorAll('.main-path')).slice(1).forEach(path => path.remove());
+    if(this.reroute_fix_curvature) {
+      points.forEach(() => {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.classList.add('main-path');
+        path.setAttributeNS(null, 'd', '');
+        ele.appendChild(path);
+      });
+    }
+    points.forEach(item => {
+      const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      point.classList.add('point');
+      point.setAttributeNS(null, 'cx', item.pos_x);
+      point.setAttributeNS(null, 'cy', item.pos_y);
+      point.setAttributeNS(null, 'r', this.reroute_width);
+      ele.appendChild(point);
+    });
+  },
+
   addRerouteImport(dataNode) {
     const reroute_width = this.reroute_width
     const reroute_fix_curvature = this.reroute_fix_curvature

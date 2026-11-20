@@ -25,15 +25,17 @@ where it appears; *done* means this project already has it.
 | `zoom_use_ctrl_key` | eviltik |
 | Reuse of `contextmenuDel` | filchy |
 | TypeScript types | signait, phosph, LordDeatHunter, pantharius, hawwwran-simpleway, chriso86 |
+| Sanitized node HTML (`sanitize_html`) | imodoye94 |
+| `addNodeInput`/`addNodeOutput` return the new port | sysrun |
+| `nodePositionChanged` event with the new position (`nodeMoved` unchanged) | signait |
+| End of a drag when the window loses the focus | phosph |
+| Cursor while dragging (`.drawflow-dragging`, `.drawflow-panning`) | decisionrules |
+| `connectionDblClick` event | makken772, sksithik |
+| `getAllNodes`, `getConnectedNodes` | mikebreeze, zunayed-relisource |
+| `updateNodeHtmlFromId` | brneas |
+| `addReroutePoint` | phosph |
+| Security policy (`SECURITY.md`); API documented in the TypeScript declarations | AbdulElahOthmanGwaith, corneil |
 | Prevent cycles, one connection per output | delgalaenza, sbglasius: possible with `connection_validator` (example in the manual) |
-
-### Security
-
-- **Sanitize node HTML** (imodoye94: sanitization and a strict mode for node rendering). Node HTML is written with
-  `innerHTML` in `addNode` and in `addNodeImport` (`src/parts/nodes.js`), so a flow imported from an untrusted
-  source can run scripts in the page (for example `<img onerror>`). Proposal: an option `sanitize_html` that
-  receives a function (DOMPurify or the application's own), off by default, and a note in the manual. Risk:
-  **medium** for applications that import flows from users.
 
 ### Connections and ports
 
@@ -49,23 +51,17 @@ where it appears; *done* means this project already has it.
   *Labels on inputs and outputs*.
 - **Named (wireless) connections** (hawwwran-simpleway): a port connected to another by a signal name, without a
   line.
-- **`addReroutePoint` API** (phosph): reroute points from code.
-- **Double click event on connections** (makken772, sksithik).
 - **`updateSingleConnection`** (illusorium-studios/PipeDrawflow): move a connection to another port.
-- **Return the new class from `addNodeInput` and `addNodeOutput`** (sysrun).
 
 ### Nodes and data
 
 - **Custom node id in `addNode`** (Wolf-Byte, fabrice8), today only sequential numbers or `useuuid`.
 - **Node content as an element** (n2ref; original #932): already listed in the roadmap review.
-- **Update the HTML of a node** (brneas: `updateNodeHtmlFromId`).
 - **Pass the node data to Vue components as props** (kellerkind87, LordDeatHunter; original #485, #486).
 - **Render function as `typenode`** (signait): a function that draws the node content, for React, Svelte or others
   without Vue-specific code.
 - **Data binding on text elements** (zunayed-relisource): `df-*` on `p` and `span`, shown as text.
-- **Graph queries** (zunayed-relisource, mikebreeze): `getAllNodes`, nodes connected to a node or to a port.
 - **Option to turn off field binding** (InDebted-Receive).
-- **`nodeMoved` with the new position** (signait).
 - **Ids as numbers in events** (kokmok). Conflicts with the current rule (ids as text, except in `nodeCreated`);
   changing it would break applications. Not recommended.
 
@@ -74,8 +70,6 @@ where it appears; *done* means this project already has it.
 - **Auto-pan near the edge** while dragging a node or a connection (hawwwran-simpleway).
 - **Trackpad and two-finger pan** (InDebted-Receive): scroll to pan, pinch to zoom.
 - **Grid background that follows the canvas** (hawwwran-simpleway), to go with `snap_grid`.
-- **Move cursor while dragging** (decisionrules).
-- **Stop dragging when the window loses focus** (phosph).
 - **Highlight of the nodes connected to the selected one; search of nodes** (DanieleMarrone).
 - **Resizable textareas inside nodes** (brneas).
 
@@ -91,16 +85,12 @@ where it appears; *done* means this project already has it.
 
 - **Modular TypeScript source** (hawwwran-simpleway, phosph, chriso86, mewcoder): a full rewrite would make the
   `pr/*` branches hard to offer to the original; the parts in `src/parts/` are a first step in that direction.
-- **JSDoc of the public API** (corneil).
 - **`var` to `const`/`let`** (illusorium-studios, DiogoM14, pantharius): 279 places in `src/` (harpia lint).
-- **Security policy** (`SECURITY.md`, AbdulElahOthmanGwaith): how to report a vulnerability.
 
 ## Project
 
-- **No CDN in the example pages**: `index.html` and `docs/index.html` load Font Awesome, SweetAlert2, Micromodal
-  and Google Fonts from CDNs, and `docs/playground.html` loads dagre from jsDelivr. Vendor them in the project, with
-  version, license and origin.
-- **Split the files over 600 lines**: `src/parts/nodes.js` (613), `types/drawflow.d.ts` (759) and
-  `test/browser.test.js` (798, one function of about 740 lines).
+- **Update Playwright** (`devDependencies` and the CI image `mcr.microsoft.com/playwright`) to 1.55.1 or later: osv-scanner
+  reports GHSA-7mvr-c777-76hp (high) in 1.48.2, in the browser download of `playwright install`. Not reached here:
+  the browsers come from the Playwright image (`PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1`). Needs a change in the CI workflow.
 - **Elkjs as a second layout engine**: layered layout that also places ports and routes edges with bends; larger
   than dagre.

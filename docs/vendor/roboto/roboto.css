@@ -1,0 +1,8 @@
+/* Roboto 400, latin subset, from @fontsource/roboto 5.3.0 (OFL-1.1) */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./roboto-latin-400-normal.woff2) format('woff2'), url(./roboto-latin-400-normal.woff) format('woff');
+}

@@ -259,3 +259,13 @@
   border: 2px solid var(--drawflow-connection-selected-color, #43b993);
   pointer-events: none;
 }
+
+/* While dragging: nodes and reroute points move, the canvas pans */
+.parent-drawflow.drawflow-dragging,
+.parent-drawflow.drawflow-dragging * {
+  cursor: move;
+}
+.parent-drawflow.drawflow-panning,
+.parent-drawflow.drawflow-panning * {
+  cursor: grabbing;
+}

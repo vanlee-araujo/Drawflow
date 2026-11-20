@@ -1,12 +1,13 @@
 {
   "name": "drawflow",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Flow editor for the browser: nodes, ports and connections, without dependencies",
   "main": "dist/drawflow.min.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode=production && gulp",
-    "test": "node test/browser.test.js"
+    "test": "node test/browser.test.js",
+    "test:types": "tsc --noEmit --strict --lib dom,es2019 test/types.test.ts"
   },
   "repository": {
     "type": "git",

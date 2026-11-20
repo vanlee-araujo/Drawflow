@@ -245,7 +245,10 @@ export default {
       var e_pos_x = e.clientX;
       var e_pos_y = e.clientY;
     }
-
+    this.last_pointer = { x: e_pos_x, y: e_pos_y };
+    // Cursor while dragging: nodes and reroute points move, the canvas pans
+    this.container.classList.toggle('drawflow-dragging', !!(this.drag || this.drag_point));
+    this.container.classList.toggle('drawflow-panning', !!this.editor_selected);
 
     if(this.connection) {
       this.updateConnection(e_pos_x, e_pos_y);
@@ -331,7 +334,11 @@ export default {
 
     if(this.drag) {
       if(this.pos_x_start != e_pos_x || this.pos_y_start != e_pos_y) {
-        this.nodesToDrag().forEach(id => this.dispatch('nodeMoved', id));
+        this.nodesToDrag().forEach(id => {
+          const node = this.drawflow.drawflow[this.module].data[id];
+          this.dispatch('nodeMoved', id);
+          this.dispatch('nodePositionChanged', { id: id, pos_x: node.pos_x, pos_y: node.pos_y });
+        });
       }
       this.drag_origin = {};
     }
@@ -415,8 +422,20 @@ export default {
     this.connection = false;
     this.ele_selected = null;
     this.editor_selected = false;
+    this.container.classList.remove('drawflow-dragging', 'drawflow-panning');
 
     this.dispatch('mouseUp', e);
+  },
+
+  // The window lost the focus (another window, alt+tab) in the middle of a drag: end it where the pointer was,
+  // on the container, so that a connection being drawn is cancelled
+  cancelPointer() {
+    if(!(this.drag || this.drag_point || this.editor_selected || this.connection || this.selection_box)) {
+      return false;
+    }
+    const pointer = this.last_pointer || { x: this.pos_x, y: this.pos_y };
+    this.dragEnd({ type: 'mouseup', clientX: pointer.x, clientY: pointer.y, target: this.container });
+    return true;
   },
 
   contextmenu(e) {
@@ -488,6 +507,10 @@ export default {
   },
 
   dblclick(e) {
+    if(e.target.classList.contains('main-path') && e.target.parentElement.classList.contains('connection')) {
+      const list = e.target.parentElement.classList;
+      this.dispatch('connectionDblClick', { output_id: list[2].slice(14), input_id: list[1].slice(13), output_class: list[3], input_class: list[4] });
+    }
     if(this.connection_selected != null && this.reroute) {
         this.createReroutePoint(this.connection_selected);
     }

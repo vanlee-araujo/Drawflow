@@ -17,15 +17,25 @@ COPY webpack.config.js gulpfile.js ./
 COPY src ./src
 RUN npm run build
 
-# 3. Browser tests in Chromium, Firefox and WebKit, against the built dist/
+# 3. Tests: TypeScript declarations (tsc) and the browsers Chromium, Firefox and WebKit, against the built dist/
 FROM ${PLAYWRIGHT_IMAGE} AS test
 WORKDIR /app
 ENV HOME=/root PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
+COPY types ./types
 COPY test ./test
+COPY index.html ./
+COPY docs ./docs
+COPY src/drawflow.css ./src/
 COPY --from=build /app/dist ./dist
-CMD ["npm", "test"]
+CMD ["sh", "-c", "npm run test:types && npm test"]
+
+# Tools: known vulnerabilities of the npm dependencies (lockfile)
+FROM ghcr.io/google/osv-scanner:v2.7.1 AS audit
+WORKDIR /src
+COPY package.json package-lock.json ./
+CMD ["scan", "source", "--lockfile", "package-lock.json"]
 
 # 4. Export: copies the CDN files to /out (a bind mount of ./dist in docker-compose.yml)
 FROM busybox:1.36 AS export
