@@ -431,7 +431,10 @@ export default class Drawflow {
 
     if(this.drag) {
       if(this.pos_x_start != e_pos_x || this.pos_y_start != e_pos_y) {
-        this.dispatch('nodeMoved', this.ele_selected.id.slice(5));
+        const moved = this.ele_selected.id.slice(5);
+        this.dispatch('nodeMoved', moved);
+        const node = this.drawflow.drawflow[this.module].data[moved];
+        this.dispatch('nodePositionChanged', { id: moved, pos_x: node.pos_x, pos_y: node.pos_y });
       }
     }
 

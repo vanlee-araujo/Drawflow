@@ -296,6 +296,7 @@ Event | Return | Description
   `nodeSelected` | id | `id` of Node
   `nodeUnselected` | true | Unselect node
   `nodeMoved` | id | `id` of Node
+  `nodePositionChanged` | { id, pos_x, pos_y } | New position of a node after a drag
   `connectionStart` | { output_id, output_class } | `id` of nodes and output selected
   `connectionCancel` | true | Connection Cancel
   `connectionCreated` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
