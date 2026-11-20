@@ -694,6 +694,8 @@ export default class Drawflow {
   }
 
   addConnection(id_output, id_input, output_class, input_class) {
+    id_output = this.nodeKey(id_output);
+    id_input = this.nodeKey(id_input);
     var nodeOneModule = this.getModuleFromNodeId(id_output);
     var nodeTwoModule = this.getModuleFromNodeId(id_input);
     if(nodeOneModule === nodeTwoModule) {
@@ -736,6 +738,7 @@ export default class Drawflow {
   }
 
   updateConnectionNodes(id) {
+    id = this.nodeElementId(id);
 
     // Aquí nos quedamos;
     const idSearch = 'node_in_'+id;
@@ -1163,7 +1166,16 @@ export default class Drawflow {
     this.noderegister[name] = {html: html, props: props, options: options};
   }
 
+  // Methods accept the node id as 5, '5' or 'node-5'
+  nodeKey(id) {
+    return String(id).replace(/^node-/, '');
+  }
+  nodeElementId(id) {
+    return 'node-' + this.nodeKey(id);
+  }
+
   getNodeFromId(id) {
+    id = this.nodeKey(id);
     var moduleName = this.getModuleFromNodeId(id)
     return JSON.parse(JSON.stringify(this.drawflow.drawflow[moduleName].data[id]));
   }
@@ -1492,6 +1504,7 @@ export default class Drawflow {
   }
 
   updateNodeDataFromId(id, data) {
+    id = this.nodeKey(id);
     var moduleName = this.getModuleFromNodeId(id)
     this.drawflow.drawflow[moduleName].data[id].data = data;
     if(this.module === moduleName) {
@@ -1538,6 +1551,7 @@ export default class Drawflow {
   }
 
   addNodeInput(id) {
+    id = this.nodeKey(id);
     var moduleName = this.getModuleFromNodeId(id)
     const infoNode = this.getNodeFromId(id)
     const numInputs = Object.keys(infoNode.inputs).length;
@@ -1555,6 +1569,7 @@ export default class Drawflow {
   }
 
   addNodeOutput(id) {
+    id = this.nodeKey(id);
     var moduleName = this.getModuleFromNodeId(id)
     const infoNode = this.getNodeFromId(id)
     const numOutputs = Object.keys(infoNode.outputs).length;
@@ -1572,6 +1587,7 @@ export default class Drawflow {
   }
 
   removeNodeInput(id, input_class) {
+    id = this.nodeKey(id);
     var moduleName = this.getModuleFromNodeId(id)
     const infoNode = this.getNodeFromId(id)
     if(this.module === moduleName) {
@@ -1643,6 +1659,7 @@ export default class Drawflow {
   }
 
   removeNodeOutput(id, output_class) {
+    id = this.nodeKey(id);
     var moduleName = this.getModuleFromNodeId(id)
     const infoNode = this.getNodeFromId(id)
     if(this.module === moduleName) {
@@ -1718,6 +1735,7 @@ export default class Drawflow {
   }
 
   removeNodeId(id) {
+    id = this.nodeElementId(id);
     this.removeConnectionNodeId(id);
     var moduleName = this.getModuleFromNodeId(id.slice(5))
     if(this.module === moduleName) {
@@ -1747,6 +1765,8 @@ export default class Drawflow {
   }
 
   removeSingleConnection(id_output, id_input, output_class, input_class) {
+    id_output = this.nodeKey(id_output);
+    id_input = this.nodeKey(id_input);
     var nodeOneModule = this.getModuleFromNodeId(id_output);
     var nodeTwoModule = this.getModuleFromNodeId(id_input);
     if(nodeOneModule === nodeTwoModule) {
@@ -1785,6 +1805,7 @@ export default class Drawflow {
   }
 
   removeConnectionNodeId(id) {
+    id = this.nodeElementId(id);
     const idSearchIn = 'node_in_'+id;
     const idSearchOut = 'node_out_'+id;
 
@@ -1829,6 +1850,7 @@ export default class Drawflow {
   }
 
   getModuleFromNodeId(id) {
+    id = this.nodeKey(id);
     var nameModule;
     const editor = this.drawflow.drawflow
     Object.keys(editor).map(function(moduleName, index) {
