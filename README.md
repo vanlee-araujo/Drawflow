@@ -301,6 +301,7 @@ Event | Return | Description
   `connectionCreated` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
   `connectionRemoved` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
   `connectionSelected` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
+  `connectionDblClick` | { output_id, input_id, output_class, input_class } | Double click on a connection
   `connectionUnselected` | true | Unselect connection
   `addReroute` | id | `id` of Node output
   `removeReroute` | id | `id` of Node output
