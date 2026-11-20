@@ -1,8 +1,8 @@
 # Drawflow manual
 
 What Drawflow can do, and how the pieces fit together. The [README](../README.md) has the
-installation, the full lists of options, methods and events, and short examples; this manual
-explains the concepts behind them.
+installation and a quick start, and the [API reference](API.md) the full lists of options, methods
+and events; this manual explains the concepts behind them.
 
 ## Contents
 - [What Drawflow is](#what-drawflow-is)
@@ -186,7 +186,7 @@ created, not the current content of the node.
 `editor.on(name, callback)` listens; `editor.removeListener(name, callback)` stops listening;
 `editor.dispatch(name, details)` fires any event, including your own names. Callbacks receive one
 argument; node ids come as text, except in `nodeCreated`, which gives the id returned by
-`addNode`. The full list is in the README; the main groups are:
+`addNode`. The full list is in the [API reference](API.md#events); the main groups are:
 
 - **Nodes:** `nodeCreated`, `nodeRemoved`, `nodeSelected`, `nodeUnselected`, `nodeMoved`,
   `nodeDataChanged`.
@@ -237,7 +237,7 @@ div.parent-drawflow              ← your container
 
 - **Vue 2 / 3:** pass the render (`Vue`, or `{ version: 3, h, render }`) and the parent instance to
   the constructor, register components with `registerNode` and create nodes with `typenode = 'vue'`.
-- **Nuxt:** transpile the package (see the README).
+- **Nuxt:** transpile the package (see the [README](../README.md#vue-and-nuxt)).
 - **Others (React, Angular, Svelte):** use HTML nodes (`typenode = false`) and read and write the
   node `data`, or render your component into the node element after `nodeCreated`.
 - **TypeScript:** types are included (`types/drawflow.d.ts`).
@@ -314,7 +314,7 @@ pulse in the default CSS).
   `undo()`, `redo()`, and the event `historyChanged`.
 - **Labels:** `setConnectionLabel(...)` writes a text in the middle of a connection, as an element with the class
   `.connection-label`. It is saved in the output side of the connection (`label`).
-- **Colors:** all colors of `drawflow.css` are `--drawflow-*` variables (see the README).
+- **Colors:** all colors of `drawflow.css` are `--drawflow-*` variables (see the [API reference](API.md#css-variables)).
 
 ## Previews and minimap
 

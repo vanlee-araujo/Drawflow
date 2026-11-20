@@ -1,0 +1,22 @@
+# docker compose run --rm build        -> builds and writes the CDN files to ./dist
+# docker compose --profile tools run --rm test -> browser tests (Chromium, Firefox, WebKit)
+name: drawflow
+
+services:
+  build:
+    build:
+      context: .
+      target: export
+    image: drawflow-export
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    volumes:
+      # The result leaves the container: dist/ is committed and served by the CDN
+      - ./dist:/out
+
+  test:
+    profiles: [tools]
+    build:
+      context: .
+      target: test
+    image: drawflow-test
+    ipc: host

@@ -1,0 +1,15 @@
+# Hidden files and folders (.env*, .git/, .github/, .harpia/, .claude/ ...)
+.*
+**/.*
+
+# Dependencies, builds and caches
+node_modules/
+coverage/
+*.log
+*.tgz
+tmp/
+temp/
+dist/
+
+# Personal notes, never in the image
+PERSONAL.md

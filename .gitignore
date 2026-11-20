@@ -106,3 +106,11 @@ tmp/
 temp/
 
 # End of https://www.gitignore.io/api/node
+
+# Local environment and tools
+.env*
+!.env.example
+.harpia/
+
+# Personal notes, never committed
+PERSONAL.md

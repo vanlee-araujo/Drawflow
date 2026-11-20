@@ -1,520 +1,181 @@
-[![version](https://img.shields.io/github/package-json/v/vanlee-araujo/Drawflow?color=green)](https://github.com/vanlee-araujo/Drawflow/releases)
-[![license](https://img.shields.io/github/license/vanlee-araujo/Drawflow)](LICENSE)
-# Drawflow
+<h1 align="center">Drawflow</h1>
 
-![Demo](https://github.com/jerosoler/Drawflow/raw/master/docs/drawflow.gif)
+<p align="center">
+  Flow editor for the browser: nodes, ports and connections in a <code>&lt;div&gt;</code>, in plain JavaScript and without dependencies.
+</p>
 
-Simple flow library.
+<p align="center">
+  <a href="https://github.com/vanlee-araujo/Drawflow/releases"><img alt="version" src="https://img.shields.io/github/package-json/v/vanlee-araujo/Drawflow?color=green"></a>
+  <a href="https://github.com/vanlee-araujo/Drawflow/actions/workflows/test.yml"><img alt="tests" src="https://github.com/vanlee-araujo/Drawflow/actions/workflows/test.yml/badge.svg"></a>
+  <a href="LICENSE"><img alt="license" src="https://img.shields.io/github/license/vanlee-araujo/Drawflow"></a>
+</p>
 
-> **About this fork.** This is a maintained fork of [Drawflow by Jero Soler](https://github.com/jerosoler/Drawflow), based on 0.0.60.
-> It fixes long-standing issues, adds arrows, vertical direction, connection validation, `zoomFit` and `autoLayout`
-> (with dagre), and documents the library in a [manual](docs/MANUAL.md). Every change was also sent as a pull request
-> to the original project. See the [releases](https://github.com/vanlee-araujo/Drawflow/releases), the
-> [playground](docs/playground.html) and the [roadmap](ROADMAP.md).
+<p align="center">
+  <a href="https://vanlee-araujo.github.io/Drawflow/docs/playground.html">Playground</a> ·
+  <a href="docs/MANUAL.md">Manual</a> ·
+  <a href="docs/API.md">API reference</a> ·
+  <a href="CHANGELOG.md">Changelog</a> ·
+  <a href="ROADMAP.md">Roadmap</a>
+</p>
 
-Drawflow allows you to create data flows easily and quickly.
+![Demo](docs/drawflow.gif)
 
-Installing only a javascript library and with four lines of code.
-
-⭐ [PLAYGROUND](https://vanlee-araujo.github.io/Drawflow/docs/playground.html) (or open `docs/playground.html` from a clone) · [original demo](https://jerosoler.github.io/Drawflow/)
-
-📖 [MANUAL](docs/MANUAL.md): what Drawflow can do and how the pieces fit together
-
-🎨 [THEME EDIT GENERATOR](https://jerosoler.github.io/drawflow-theme-generator/)
-
-## Table of contents
-- [Features](#features)
-- [Installation](#installation)
-  - [Running](#running)
-- [Mouse and  Keys](#mouse-and-keys)
-- [Editor](#editor)
-  - [Options](#editor-options)
-  - [Reroute](#reroute)
-- [Modules](#modules)
-- [Nodes](#nodes)
-  - [Node example](#node-example)
-  - [Register Node](#register-node)
-- [Methods](#methods)
-  - [Methods example](#methods-example)
-- [Events](#events)
-  - [Events example](#events-example)
-- [Export / Import](#export-/-import)
-  - [Export example](#export-example)
-- [Example](#example)
-- [Manual](docs/MANUAL.md)
-- [License](#license)
+Drawflow is a maintained continuation of [Drawflow by Jero Soler](https://github.com/jerosoler/Drawflow), based on its
+0.0.60. It keeps the same API and data format, fixes long-standing issues of the original and adds the features its
+users asked for most. Without the new options it works like 0.0.60, apart from the documented fixes.
 
 ## Features
-- Drag Nodes
-- Multiple Inputs / Outputs
-- Multiple connections
-- Delete Nodes and Connections
-- Add/Delete inputs/outputs
-- Reroute connections
-- Data sync on Nodes
-- Zoom in / out
-- Clear data module
-- Support modules
-- Editor mode `edit`, `fixed` or `view`
-- Import / Export data
-- Events
-- Mobile support
-- Vanilla javascript (No dependencies)
-- NPM
-- Vue Support component nodes && Nuxt
-- Arrows on connections and vertical direction
-- Connection validation
-- Node position, zoom and pan from code
-- Connection classes by node type
-- Labels on connections
+
+**Editing**
+- Drag nodes, multiple inputs and outputs, multiple connections
+- Reroute points on connections, labels on connections
+- Multi-selection, locked nodes, snap to grid, node bounds
 - Undo and redo
-- Multi-selection, locked nodes, snap to grid
-- Minimap and flow previews
+- Fields inside nodes bound to the node data (`df-*`)
+
+**Connections**
+- Arrows and vertical direction
+- Validation before a connection is created or removed
+- Loop for connections to a node behind the output
+- Classes by source node type, highlight of the target node while dragging
+
+**View and layout**
+- Zoom and pan, from the mouse, touch or code
+- `zoomFit`, `centerNode` and `autoLayout` (with [dagre](https://github.com/dagrejs/dagre), optional)
+- Optional minimap and flow previews (`renderPreview`)
+- Modules: separate flows in the same editor
+
+**Integration**
+- Import and export as JSON, with repair of broken connections on import
+- Events for every change
+- Editor modes `edit`, `fixed` and `view`
+- Vue 2, Vue 3 and Nuxt; TypeScript types included
+- Colors as CSS variables; mobile support
 
 ## Installation
-Download or clone repository and copy the dist folder, CDN option Or npm.  
-#### Clone
-`git clone https://github.com/vanlee-araujo/Drawflow.git`
 
-#### CDN
+**CDN** (fixed version, see the [releases](https://github.com/vanlee-araujo/Drawflow/releases)):
+
 ```html
-# Fixed version (see https://github.com/vanlee-araujo/Drawflow/releases)
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.2.0/dist/drawflow.min.css">
 <script src="https://cdn.jsdelivr.net/gh/vanlee-araujo/Drawflow@0.2.0/dist/drawflow.min.js"></script>
 ```
 
-#### NPM
-```javascript
+**npm**, from this repository:
+
+```bash
 npm i github:vanlee-araujo/Drawflow#0.2.0
 ```
-The `drawflow` package on npm is the original 0.0.60, without the changes of this fork.
 
-### Typescript
-Types are included in this fork (`types/drawflow.d.ts`).
+The `drawflow` package on the npm registry is the original 0.0.60, without the changes of this project.
 
-#### Import
-```javascript
-import Drawflow from 'drawflow'
-import styleDrawflow from 'drawflow/dist/drawflow.min.css'
-```
+**Download**: copy the `dist/` folder of a release into your project.
 
-#### Require
-```javascript
-var Drawflow = require('drawflow')
-var styleDrawflow = require('drawflow/dist/drawflow.min.css')
-```
+## Quick start
 
-Create the parent element of **drawflow**.
 ```html
-<div id="drawflow"></div>
+<div id="drawflow" style="width: 100%; height: 600px"></div>
 ```
-### Running
-Start drawflow.
+
 ```javascript
-var id = document.getElementById("drawflow");
-const editor = new Drawflow(id);
+import Drawflow from 'drawflow';
+import 'drawflow/dist/drawflow.min.css';
+
+const editor = new Drawflow(document.getElementById('drawflow'));
 editor.start();
-```
-Parameter | Type | Description
---- | --- | ---
-`id` | Object | Container element of the editor
-`render` | Object | It's for `Vue`.
-`parent` | Object | It's for `Vue`. The parent Instance
 
-### For vue 2 example.
-```javascript
-import Vue from 'vue'
+const source = editor.addNode('source', 0, 1, 50, 100, 'source', { name: '' }, '<input type="text" df-name>');
+const target = editor.addNode('target', 1, 0, 400, 100, 'target', {}, 'Target');
+editor.addConnection(source, target, 'output_1', 'input_1');
 
-// Pass render Vue
-this.editor = new Drawflow(id, Vue, this);
+editor.on('connectionCreated', connection => console.log(connection));
+const data = editor.export();   // JSON of every module
+editor.import(data);
 ```
 
-### For vue 3 example.
-```javascript
-import { h, getCurrentInstance, render } from 'vue'
-const Vue = { version: 3, h, render };
+With CommonJS: `const Drawflow = require('drawflow')`.
 
-this.editor = new Drawflow(id, Vue);
-// Pass render Vue 3 Instance
-const internalInstance = getCurrentInstance()
-editor.value = new Drawflow(id, Vue, internalInstance.appContext.app._context);
-```
+### Options
 
-### Nuxt
-Add to `nuxt.config.js` file
-```javascript
-build: {
-    transpile: ['drawflow'],
-    ...
-  }
-```
-
-## Mouse and  Keys
-- `Delete` key (`Cmd + Backspace` on Mac) to remove the selected node or connection.
-- `Right click` to show remove options (Mobile long press).
-- `Left click press` to move editor or node selected.
-- `Ctrl + Mouse Wheel` Zoom in/out (Mobile pinch).
-- `Double click` on a selected connection adds a reroute point; on a point, removes it (with `reroute`).
-
-## Editor
-You can change the editor to **fixed** type to block. Only editor can be moved. You can put it before start.
-```javascript
-editor.editor_mode = 'edit'; // Default
-editor.editor_mode = 'fixed'; // Only scroll
-editor.editor_mode = 'view'; // Only scroll and zoom, nothing can be changed
-```
-You can also adjust the zoom values.
-```javascript
-editor.zoom_max = 1.6;
-editor.zoom_min = 0.5;
-editor.zoom_value = 0.1;
-```
-
-### Editor options
-
-Parameter | Type | Default | Description
---- | --- | --- | ---
-`reroute` | Boolean | false | Active reroute
-`reroute_fix_curvature` | Boolean | false | Fix adding points
-`curvature` | Number | 0.5 | Curvature
-`curvature_backward` | Boolean | false | Connection to a node behind the output (on the left; above in vertical) is drawn as a loop around the nodes
-`backward_offset` | Number | 60 | Distance the loop goes out of the output / into the input
-`backward_depth` | Number | 80 | Distance the loop goes below the lowest port (nodes on the same row)
-`backward_row_gap` | Number | 120 | Vertical distance from which the loop crosses between rows instead of going below
-`reroute_curvature_start_end` | Number | 0.5 | Curvature reroute first point and last point
-`reroute_curvature` | Number | 0.5 | Curvature reroute
-`reroute_width` | Number | 6 | Width of reroute
-`line_path` | Number | 5 | Width of line
-`force_first_input` | Boolean | false | Dropping a connection anywhere on a node connects it to the node's first input
-`editor_mode` | Text | `edit` | `edit` for edit, `fixed` for nodes fixed but their input fields available, `view` for view only
-`zoom` | Number | 1 | Default zoom
-`zoom_max` | Number | 1.6 | Default zoom max
-`zoom_min` | Number | 0.5 | Default zoom min
-`zoom_value` | Number | 0.1 | Default zoom value update
-`zoom_last_value` | Number | 1 | Default zoom last value
-`zoom_use_ctrl_key` | Boolean | true | Mouse wheel zooms only with the ctrl key pressed. `false` zooms with the wheel alone
-`observe_node_resize` | Boolean | true | Redraw the connections of a node when its size changes (content loaded later, fonts, hidden tab). Set before `start()`
-`draggable_inputs` | Boolean | true | Drag nodes on click inputs
-`useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
-`connection_arrow` | Text | `none` | Arrow on connections: `none`, `end` (pointing into the input), `start` (pointing into the output) or `both`. Change it later with `setConnectionArrow`
-`connection_arrow_size` | Number | 14 | Arrow length and width
-`connection_arrow_offset` | Number | 12 | Distance from the port center to the arrow tip, so the tip stays outside the port. Use half of your port size (with border)
-`connection_direction` | Text | `horizontal` | `horizontal`: inputs on the left, outputs on the right. `vertical`: inputs on top, outputs at the bottom, curves leave and enter vertically. Change it later with `setConnectionDirection`
-`connection_target_class` | Text | `connection-target` | Class added to the node under the pointer while dragging a connection, when releasing there creates the connection (on an input, or anywhere on the node with `force_first_input`)
-`node_remove_validator` | Function | null | Called with the node id before removing it (Delete key, ✕ button, `removeNodeId`). Return `false` to keep it
-`connection_remove_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before removing a connection. Return `false` to keep it
-`snap_grid` | Number | 0 | Grid size for dragged nodes. `0` for no grid
-`node_bounds` | Object | null | Limits for dragged nodes: `{ min_x, min_y, max_x, max_y }`, any of them. Ex: `{ min_x: 0, min_y: 0 }` for no negative positions
-`multiselect` | Boolean | false | Ctrl/Shift + click and Shift + drag on the canvas select several nodes; they move and are deleted together; Ctrl+A selects all
-`history` | Boolean | false | Undo and redo (Ctrl+Z, Ctrl+Y, `undo()`, `redo()`). Set before `start()`
-`history_limit` | Number | 50 | Steps kept for undo
-`connection_validator` | Function | null | Called with `{ output_id, input_id, output_class, input_class }` before a connection is created (by mouse or `addConnection`). Return `false` to block it
-
-### Reroute
-Active reroute connections. Use before `start` or `import`.
-```javascript
-editor.reroute = true;
-```
-Create point with double click on line connection. Double click on point for remove.
-
-## Modules
-Separate your flows in different editors.
-```javascript
-editor.addModule('nameNewModule');
-editor.changeModule('nameNewModule');
-editor.removeModule('nameModule');
-// Default Module is Home
-editor.changeModule('Home');
-```
-`removeModule` of the module on screen shows another existing module (or an empty `Home` when it was the last one).
-
-
-## Nodes
-Adding a node is simple.
-```javascript
-editor.addNode(name, inputs, outputs, posx, posy, class, data, html, typenode);
-```
-Parameter | Type | Description
---- | --- | ---
-`name` | text | Name of the node (not unique)
-`inputs` | number | Number of inputs
-`outputs` | number | Number of outputs
-`pos_x` | number | Position on start node left
-`pos_y` | number | Position on start node top
-`class` | text | Class names added to the node, separated by space
-`data` | json | Data passed to node
-`html` | text | HTML drawn on node or `name` of register node.
-`typenode` | boolean & text | Default `false`, `true` for Object HTML, `vue` for vue
-
-You can use the attribute `df-*` in **inputs, textarea or select** to synchronize with the node data and **contenteditable**.
-
-Nested keys use dashes: `df-config-url` is `data.config.url`.
-
-### Node example
-```javascript
-var html = `
-<div><input type="text" df-name></div>
-`;
-var data = { "name": '' };
-
-editor.addNode('github', 0, 1, 150, 300, 'github', data, html);
-```
-### Register Node
-
-it's possible register nodes for reuse.
-```javascript
-var html = document.createElement("div");
-html.innerHTML =  "Hello Drawflow!!";
-editor.registerNode('test', html);
-// Use
-editor.addNode('github', 0, 1, 150, 300, 'github', data, 'test', true);
-
-// For vue
-import component from '~/components/testcomponent.vue'
-editor.registerNode('name', component, props, options);
-// Use for vue
-editor.addNode('github', 0, 1, 150, 300, 'github', data, 'name', 'vue');
-```
-
-Parameter | Type | Description
---- | --- | ---
-`name` | text | Name of the registered node.
-`html` | text | HTML to drawn or `vue` component.
-`props` | json | Only for `vue`. Props of component. `Not Required`
-`options` | json | Only for `vue`. Options of component. `Not Required`
-
-
-
-## Methods
-Other available functions.
-
-Node ids are accepted as `5`, `'5'` or `'node-5'` in all methods.
-
-Method | Description
---- | ---
-`zoom_in()` | Increment zoom +0.1
-`zoom_out()` | Decrement zoom -0.1
-`zoom_reset()` | Zoom back to 1
-`setZoom(value)` | Set zoom, limited to `zoom_min` and `zoom_max`. Ex: `0.8`
-`setCanvasPosition(x, y)` | Move (pan) the editor canvas. Ex: `0, 0`
-`setNodePosition(id, pos_x, pos_y)` | Move node and redraw its connections. Ex: `5, 100, 200`
-`setConnectionArrow(arrow, size, offset)` | Change arrows of all connections. Ex: `'both'` or `'end', 16, 9`
-`setConnectionDirection(direction)` | Change direction and redraw connections. Ex: `'vertical'`
-`setConnectionLabel(id_output, id_input, output_class, input_class, text)` | Text on a connection, saved in the export. An empty text removes it
-`getConnectionLabel(id_output, id_input, output_class, input_class)` | Text of a connection
-`setNodeLocked(id, locked)` / `isNodeLocked(id)` | A locked node cannot be dragged or removed. Saved in the export
-`selectNode(id)` / `selectNodes(ids)` / `clearSelection()` / `getSelectedNodes()` | Selection from code
-`centerNode(id)` / `centerCanvasOn(x, y)` | Pan so that a node or a point is in the center
-`undo()` / `redo()` / `canUndo()` / `canRedo()` | History, with the `history` option
-`renderPreview(element, options)` | Draw a flow as a small picture in an element. Options: `data` (an export) or `module`, `color(node)`, `nodeWidth`, `nodeHeight`, `padding`, `direction`
-`zoomFit(options)` | Zoom and pan so that every node fits in the editor. Options: `padding` (20), `minZoom` (`zoom_min`; lower it to fit big flows), `maxZoom` (1)
-`autoLayout(dagre, options)` | Arrange the nodes in layers with [dagre](https://github.com/dagrejs/dagre), loaded by you. Options: `direction` (`LR`, `TB`, `RL`, `BT`; default from `connection_direction`), `nodesep` (40), `ranksep` (70), `edgesep` (10), `fit` (true), `fitOptions` (for `zoomFit`). Reroute points are removed
-`getNodeFromId(id)` | Get Info of node. Ex: id: `5`
-`getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
-`removeNodeId(id)` | Remove node. Ex id: `node-x`
-`updateNodeDataFromId` | Update data element. Ex: `5, { name: 'Drawflow' }`
-`addNodeInput(id)` | Add input to node. Ex id: `5`
-`addNodeOutput(id)` | Add output to node. Ex id: `5`
-`removeNodeInput(id, input_class)` | Remove input to node. Ex id: `5`, `input_2`
-`removeNodeOutput(id, output_class)` | Remove output to node. Ex id: `5`, `output_2`
-`addConnection(id_output, id_input, output_class, input_class)` | Add connection. Ex: `15,16,'output_1','input_1'`
-`removeSingleConnection(id_output, id_input, output_class, input_class)` | Remove connection. Ex: `15,16,'output_1','input_1'`
-`updateConnectionNodes(id)` | Update connections position from Node Ex id: `node-x`
-`removeConnectionNodeId(id)` | Remove node connections. Ex id: `node-x`
-`getModuleFromNodeId(id)` | Get name of module where is the id. Ex id: `5`
-`clearModuleSelected()` | Clear data of module selected
-`clear()` | Remove all modules and data, and go back to an empty `Home` module
-`removeConnection()` | Remove the selected connection
-`export()` | Return a copy of all data
-`import(data, notifi)` | Replace all data and draw the current module. With `notifi` `false`, the `import` event is not fired
-
-### Methods example
+Options are properties of the editor, set before `start()`:
 
 ```javascript
-editor.removeNodeId('node-4');
-```
-
-```javascript
-// Block connections from a node to itself
+editor.reroute = true;                                   // reroute points
+editor.connection_arrow = 'end';                         // arrows
+editor.history = true;                                   // undo and redo
 editor.connection_validator = ({ output_id, input_id }) => output_id !== input_id;
-```
-
-```javascript
-// Show the whole flow, even when it is bigger than zoom_min allows
-editor.zoomFit({ padding: 40, minZoom: 0.1 });
-```
-
-```javascript
-// Arrange the flow (load dagre yourself: npm i @dagrejs/dagre, or its dist/dagre.min.js)
-editor.autoLayout(dagre, { direction: 'LR' });
-```
-
-## Events
-You can detect events that are happening.
-
-Stop listening with `editor.removeListener(event, callback)`. `editor.dispatch(event, details)` fires an event, also with your own names.
-
-List of available events:
-
-Event | Return | Description
---- | --- | ---
-  `nodeCreated` | id | `id` of Node
-  `nodeRemoved` | id | `id` of Node
-  `nodeDataChanged` | id | `id` of Node df-* attributes changed.
-  `nodeSelected` | id | `id` of Node
-  `nodeUnselected` | true | Unselect node
-  `nodeMoved` | id | `id` of Node
-  `connectionStart` | { output_id, output_class } | `id` of nodes and output selected
-  `connectionCancel` | true | Connection Cancel
-  `connectionCreated` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
-  `connectionRemoved` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
-  `connectionSelected` | { output_id, input_id, output_class, input_class } | `id`'s of nodes and output/input selected
-  `connectionUnselected` | true | Unselect connection
-  `addReroute` | id | `id` of Node output
-  `removeReroute` | id | `id` of Node output
-  `rerouteMoved` | id | `id` of Node output
-  `nodeLocked` | { id, locked } | Node locked or unlocked
-  `selectionChanged` | ids | `id`'s of the selected nodes (`multiselect`)
-  `connectionLabelChanged` | { output_id, input_id, output_class, input_class, label } | Text of a connection changed
-  `historyChanged` | { canUndo, canRedo } | Undo state changed
-  `moduleCreated` | name | `name` of Module
-  `moduleChanging` | name | `name` of Module, before the change
-  `moduleChanged` | name | `name` of Module, after the module is drawn
-  `moduleRemoved` | name | `name` of Module
-  `click` | event | Click event
-  `clickEnd` | event | Once the click changes have been made
-  `contextmenu` | event | Click second button mouse event
-  `mouseMove` | { x, y } | Position
-  `mouseUp` | event | MouseUp Event
-  `keydown` | event | Keydown event
-  `zoom` | zoom_level | Level of zoom
-  `translate` | { x, y } | Position translate editor
-  `import` | `import` | Finish import
-  `export` | data | Data export
-
-### Events example
-```javascript
-editor.on('nodeCreated', function(id) {
-  console.log("Node created " + id);
-})
-```
-
-## Export / Import
-You can export and import your data. On import, connections are checked: node ids become text, duplicated connections are removed, and each connection is kept on both sides (output and input). If the data has no module with the current name (ex. no `Home`), the first module is shown.
-```javascript
-var exportdata = editor.export();
-editor.import(exportdata);
-```
-### Export example
-Example of exported data:
-```json
-{
-    "drawflow": {
-        "Home": {
-            "data": {}
-        },
-        "Other": {
-            "data": {
-                "16": {
-                    "id": 16,
-                    "name": "facebook",
-                    "data": {},
-                    "class": "facebook",
-                    "html": "\n        
-\n          
- Facebook Message
-\n        
-\n        ",
-                    "inputs": {},
-                    "outputs": {
-                        "output_1": {
-                            "connections": [
-                                {
-                                    "node": "17",
-                                    "output": "input_1"
-                                }
-                            ]
-                        }
-                    },
-                    "pos_x": 226,
-                    "pos_y": 138
-                },
-                "17": {
-                    "id": 17,
-                    "name": "log",
-                    "data": {},
-                    "class": "log",
-                    "html": "\n            
-\n              
- Save log file
-\n            
-\n            ",
-                    "inputs": {
-                        "input_1": {
-                            "connections": [
-                                {
-                                    "node": "16",
-                                    "input": "output_1"
-                                }
-                            ]
-                        }
-                    },
-                    "outputs": {},
-                    "pos_x": 690,
-                    "pos_y": 129
-                }
-            }
-        }
-    }
-}
-
-```
-
-### Arrows, direction and connection classes
-
-```javascript
-editor.connection_arrow = 'end';           // before editor.start()
-editor.connection_direction = 'vertical';
 editor.start();
-
-editor.setConnectionArrow('start');        // swap: arrows point into the outputs
-editor.setConnectionDirection('horizontal');
 ```
 
-- The arrow takes the color of its line, also on hover and when selected (`fill: context-stroke`). Browsers without `context-stroke` (Safari) use the fallback color: `.drawflow-arrow { fill: steelblue; }`. Set it to your line color.
-- Each connection, and each output port, gets `connection-<class>` for every class of its source node. Ex: a node with class `query` gives `connection-query`, so lines of each node type can have their own color.
-- With `connection_direction = 'vertical'` the container gets the class `drawflow-vertical`. If you restyle ports, keep inputs on the top border and outputs on the bottom border.
+The full list of options, methods and events is in the [API reference](docs/API.md).
 
-### Minimap
+### Vue and Nuxt
 
-Optional file: load `dist/drawflow-minimap.min.js` after Drawflow.
 ```javascript
-const minimap = new DrawflowMinimap(editor, { width: 200, height: 140 });
-minimap.destroy();
+// Vue 2
+import Vue from 'vue';
+this.editor = new Drawflow(element, Vue, this);
+
+// Vue 3
+import { h, getCurrentInstance, render } from 'vue';
+const Vue = { version: 3, h, render };
+const internalInstance = getCurrentInstance();
+editor.value = new Drawflow(element, Vue, internalInstance.appContext.app._context);
 ```
 
-### Colors
+Vue components are registered with `registerNode(name, component, props, options)` and created with
+`typenode = 'vue'`. In Nuxt, add `build: { transpile: ['drawflow'] }` to `nuxt.config.js`.
 
-Colors are CSS variables with the default values: `--drawflow-node-background`, `--drawflow-node-selected-background`, `--drawflow-node-border-color`, `--drawflow-node-color`, `--drawflow-input-background`, `--drawflow-output-background`, `--drawflow-port-border-color`, `--drawflow-connection-color`, `--drawflow-connection-hover-color`, `--drawflow-connection-selected-color`, `--drawflow-point-stroke`, `--drawflow-point-fill`, `--drawflow-point-selected-fill`, `--drawflow-delete-background`, `--drawflow-delete-color`, `--drawflow-label-background`, `--drawflow-label-color`, `--drawflow-minimap-background`, `--drawflow-minimap-border`.
+## Documentation
 
-## Example
-Try everything in the [playground](docs/playground.html). View the original example in folder [docs](docs/index.html).  
-There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
+| Document | Content |
+|---|---|
+| [Manual](docs/MANUAL.md) | What Drawflow can do and how the pieces fit together |
+| [API reference](docs/API.md) | Options, methods, events, data format and CSS variables |
+| [Playground](docs/playground.html) | Every feature in one page (open it from a clone, or [online](https://vanlee-araujo.github.io/Drawflow/docs/playground.html)) |
+| [Architecture](ARCHITECTURE.md) | Source layout, flows and design decisions |
+| [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Proposals](PROPOSALS.md) | What was delivered, what is planned and what is under discussion |
+
+Other examples: the [original demo](docs/index.html) and Drawflow in a [custom element](docs/drawflow-element.html)
+(based on [LitElement](https://lit.dev)). The [theme generator](https://jerosoler.github.io/drawflow-theme-generator/) of
+the original project builds a theme visually.
+
+## Development
+
+With Docker Compose (nothing installed on the host):
+
+```bash
+cp .env.example .env              # set HOST_UID and HOST_GID to your `id -u` and `id -g`
+docker compose run --rm build     # builds and writes the CDN files to dist/
+docker compose --profile tools run --rm test   # browser tests (Chromium, Firefox and WebKit)
+```
+
+The GitHub Actions workflow builds and tests the same way with npm (`npm ci`, `npm run build`, `npm test`).
+
+Each fix or feature is also kept as a small branch `pr/<topic>`, made from the original code with one subject per
+branch, so that it can be offered to the original project on its own.
 
 ## Credits
-Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
 
-- Repair of duplicated and one-sided connections on import: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
-- Container classes other than the first one (issue #469): idea from pavlyuts ([pavlyuts](https://github.com/pavlyuts), PR #141).
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks
+of the original project, under the same MIT license:
+
+- Repair of duplicated and one-sided connections on import, dragging outside the container: ideas from
+  [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
+- Container classes other than the first one (issue #469): idea from [pavlyuts](https://github.com/pavlyuts) (PR #141).
 - Outputs with non-sequential names on import (issue #808): idea from Daniel Vidal Cussi ([danieldvc](https://github.com/danieldvc), PR #260).
-- Data keys with characters that are invalid in CSS selectors (ex. `,` and `|`): fix by yiiouo ([rni-l/Drawflow](https://github.com/rni-l/Drawflow), issue #336), extended to all characters with `CSS.escape`.
-- Dragging outside the container: idea from [hawwwran-simpleway/Drawflow](https://github.com/hawwwran-simpleway/Drawflow).
+- Data keys with characters that are invalid in CSS selectors (ex. `,` and `|`): fix by yiiouo
+  ([rni-l/Drawflow](https://github.com/rni-l/Drawflow), issue #336), extended to all characters with `CSS.escape`.
 - Delete button with the `✕` symbol: Urban Sanden ([urre/Drawflow](https://github.com/urre/Drawflow), PR #666).
 - Reuse of `contextmenuDel()`: Filip Chytil ([filchy](https://github.com/filchy), PR #579).
 - `moduleChanged` after the module is drawn and the new `moduleChanging`: Wayne Ellis ([codemwnci](https://github.com/codemwnci), PR #683).
 - `zoom_use_ctrl_key` option: ftab ([eviltik](https://github.com/eviltik), PR #648).
 - Loop for connections to a node behind the output: Guillermo Gefaell ([konum](https://github.com/konum), PR #947).
-- Connection classes by source node type, highlight of the target node while dragging a connection: idea and first code by Mouhamed Assafiri / Mo-WW ([mofolo/Drawflow](https://github.com/mofolo/Drawflow)).
+- Connection classes by source node type, highlight of the target node while dragging a connection: idea and first
+  code by Mouhamed Assafiri / Mo-WW ([mofolo/Drawflow](https://github.com/mofolo/Drawflow)).
+- Ideas for multi-selection, `centerNode` and `selectNode`: the [brneas](https://github.com/brneas/Drawflow) and
+  [DanieleMarrone](https://github.com/DanieleMarrone/Drawflow) forks.
 
 ## License
-MIT License
+
+[MIT](LICENSE), copyright (c) 2020 Jero Soler.

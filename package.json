@@ -1,7 +1,7 @@
 {
   "name": "drawflow",
   "version": "0.2.0",
-  "description": "Simple flow library",
+  "description": "Flow editor for the browser: nodes, ports and connections, without dependencies",
   "main": "dist/drawflow.min.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
@@ -10,21 +10,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jerosoler/Drawflow.git"
+    "url": "https://github.com/vanlee-araujo/Drawflow.git"
   },
   "keywords": [
     "flow",
     "javascript",
     "javascript-library",
     "flow-based-programming",
-    "flowchart"
+    "flowchart",
+    "flow-editor",
+    "node-editor"
   ],
-  "author": "Jero soler",
+  "author": "Jero Soler",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jerosoler/Drawflow/issues"
+    "url": "https://github.com/vanlee-araujo/Drawflow/issues"
   },
-  "homepage": "https://github.com/jerosoler/Drawflow#readme",
+  "homepage": "https://github.com/vanlee-araujo/Drawflow#readme",
   "devDependencies": {
     "@dagrejs/dagre": "1.1.4",
     "gulp": "^5.0.0",
