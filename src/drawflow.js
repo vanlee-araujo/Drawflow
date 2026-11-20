@@ -1055,6 +1055,10 @@ export default class Drawflow {
   }
 
   dblclick(e) {
+    if(e.target.classList.contains('main-path') && e.target.parentElement.classList.contains('connection')) {
+      const list = e.target.parentElement.classList;
+      this.dispatch('connectionDblClick', { output_id: list[2].slice(14), input_id: list[1].slice(13), output_class: list[3], input_class: list[4] });
+    }
     if(this.connection_selected != null && this.reroute) {
         this.createReroutePoint(this.connection_selected);
     }
