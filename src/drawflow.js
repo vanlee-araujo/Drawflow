@@ -1167,6 +1167,33 @@ export default class Drawflow {
     var moduleName = this.getModuleFromNodeId(id)
     return JSON.parse(JSON.stringify(this.drawflow.drawflow[moduleName].data[id]));
   }
+  // Ids of the nodes of a module (the current one by default)
+  getAllNodes(moduleName = this.module) {
+    const module = this.drawflow.drawflow[moduleName];
+    return module ? Object.keys(module.data) : [];
+  }
+
+  // Ids of the nodes connected to a node, on every port or on one ('input_1', 'output_2')
+  getConnectedNodes(id, port) {
+    const moduleName = this.getModuleFromNodeId(id);
+    if(!moduleName) {
+      return [];
+    }
+    const node = this.drawflow.drawflow[moduleName].data[id];
+    const ports = Object.assign({}, node.inputs, node.outputs);
+    const names = port === undefined ? Object.keys(ports) : [port];
+    const ids = [];
+    names.forEach(name => {
+      (ports[name] ? ports[name].connections : []).forEach(connection => {
+        const other = String(connection.node);
+        if(!ids.includes(other)) {
+          ids.push(other);
+        }
+      });
+    });
+    return ids;
+  }
+
   getNodesFromName(name) {
     var nodes = [];
     const editor = this.drawflow.drawflow
