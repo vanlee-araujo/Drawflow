@@ -271,6 +271,7 @@ Mehtod | Description
 `removeNodeOutput(id, output_class)` | Remove output to node. Ex id: `5`, `output_2`
 `addConnection(id_output, id_input, output_class, input_class)` | Add connection. Ex: `15,16,'output_1','input_1'`
 `removeSingleConnection(id_output, id_input, output_class, input_class)` | Remove connection. Ex: `15,16,'output_1','input_1'`
+`addReroutePoint(id_output, id_input, output_class, input_class, pos_x, pos_y, index)` | Reroute point from code, at the end or at `index`. Saved in the data; drawn, like on import, only with `reroute`
 `updateConnectionNodes(id)` | Update connections position from Node Ex id: `node-x`
 `removeConnectionNodeId(id)` | Remove node connections. Ex id: `node-x`
 `getModuleFromNodeId(id)` | Get name of module where is the id. Ex id: `5`
