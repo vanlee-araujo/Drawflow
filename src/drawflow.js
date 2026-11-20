@@ -1167,6 +1167,23 @@ export default class Drawflow {
     var moduleName = this.getModuleFromNodeId(id)
     return JSON.parse(JSON.stringify(this.drawflow.drawflow[moduleName].data[id]));
   }
+  // New HTML for a node created with HTML (typenode false): the fields get the values of its data again
+  updateNodeHtmlFromId(id, html) {
+    const moduleName = this.getModuleFromNodeId(id);
+    const node = moduleName && this.drawflow.drawflow[moduleName].data[id];
+    if(!node || node.typenode !== false) {
+      return false;
+    }
+    node.html = html;
+    if(this.module === moduleName) {
+      this.container.querySelector('#node-' + id + ' .drawflow_content_node').innerHTML = html;
+      this.updateNodeDataFromId(id, node.data);
+      this.updateConnectionNodes('node-' + id);
+    }
+    this.dispatch('nodeHtmlChanged', id);
+    return true;
+  }
+
   getNodesFromName(name) {
     var nodes = [];
     const editor = this.drawflow.drawflow
