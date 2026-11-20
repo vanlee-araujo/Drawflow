@@ -32,6 +32,9 @@ export default class Drawflow {
     this.draggable_inputs = true;
     this.useuuid = false;
     this.parent = parent;
+    // Optional: function({ output_id, input_id, output_class, input_class }) => boolean.
+    // Returning false blocks the connection (mouse or addConnection).
+    this.connection_validator = null;
 
     this.noderegister = {};
     this.render = render;
@@ -473,7 +476,8 @@ export default class Drawflow {
 
         if(output_id !== input_id && input_class !== false) {
 
-          if(this.container.querySelectorAll('.connection.node_in_'+input_id+'.node_out_'+output_id+'.'+output_class+'.'+input_class).length === 0) {
+          if(this.container.querySelectorAll('.connection.node_in_'+input_id+'.node_out_'+output_id+'.'+output_class+'.'+input_class).length === 0
+            && this.validateConnection(output_id.slice(5), input_id.slice(5), output_class, input_class)) {
           // Conection no exist save connection
 
           this.connection_ele.classList.add("node_in_"+input_id);
@@ -590,14 +594,12 @@ export default class Drawflow {
   }
   zoom_in() {
     if(this.zoom < this.zoom_max) {
-        this.zoom+=this.zoom_value;
-        this.zoom_refresh();
+      this.setZoom(this.zoom + this.zoom_value);
     }
   }
   zoom_out() {
     if(this.zoom > this.zoom_min) {
-      this.zoom-=this.zoom_value;
-        this.zoom_refresh();
+      this.setZoom(this.zoom - this.zoom_value);
     }
   }
   zoom_reset(){
@@ -605,6 +607,24 @@ export default class Drawflow {
       this.zoom = 1;
       this.zoom_refresh();
     }
+  }
+  setZoom(value) {
+    // Rounded: 1.5 + 0.1 must not end up above zoom_max because of floating point
+    this.zoom = Math.min(this.zoom_max, Math.max(this.zoom_min, Math.round(value * 1000) / 1000));
+    this.zoom_refresh();
+  }
+  setCanvasPosition(x, y) {
+    this.canvas_x = x;
+    this.canvas_y = y;
+    this.dispatch('translate', { x: x, y: y });
+    this.precanvas.style.transform = "translate("+this.canvas_x+"px, "+this.canvas_y+"px) scale("+this.zoom+")";
+  }
+
+  validateConnection(id_output, id_input, output_class, input_class) {
+    if(typeof this.connection_validator !== 'function') {
+      return true;
+    }
+    return this.connection_validator({ output_id: id_output.toString(), input_id: id_input.toString(), output_class: output_class, input_class: input_class }) !== false;
   }
 
   createCurvature(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value, type) {
@@ -707,7 +727,7 @@ export default class Drawflow {
         }
       }
       // Check connection exist
-      if(exist === false) {
+      if(exist === false && this.validateConnection(id_output, id_input, output_class, input_class)) {
         //Create Connection
         this.drawflow.drawflow[nodeOneModule].data[id_output].outputs[output_class].connections.push( {"node": id_input.toString(), "output": input_class});
         this.drawflow.drawflow[nodeOneModule].data[id_input].inputs[input_class].connections.push( {"node": id_output.toString(), "input": output_class});
@@ -1166,6 +1186,19 @@ export default class Drawflow {
   getNodeFromId(id) {
     var moduleName = this.getModuleFromNodeId(id)
     return JSON.parse(JSON.stringify(this.drawflow.drawflow[moduleName].data[id]));
+  }
+  setNodePosition(id, pos_x, pos_y) {
+    var moduleName = this.getModuleFromNodeId(id);
+    var dataNode = this.drawflow.drawflow[moduleName].data[id];
+    dataNode.pos_x = pos_x;
+    dataNode.pos_y = pos_y;
+    if(this.module === moduleName) {
+      var node = this.container.querySelector('#node-'+id);
+      node.style.left = pos_x + "px";
+      node.style.top = pos_y + "px";
+      this.updateConnectionNodes('node-'+id);
+    }
+    this.dispatch('nodeMoved', id.toString());
   }
   getNodesFromName(name) {
     var nodes = [];
