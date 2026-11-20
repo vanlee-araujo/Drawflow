@@ -1428,6 +1428,46 @@ export default class Drawflow {
     this.precanvas.appendChild(parent);
   }
 
+  // A reroute point from code, at the end of the points of the connection or at index. Like import, it is
+  // drawn only with reroute on; the point is always saved in the data
+  addReroutePoint(id_output, id_input, output_class, input_class, pos_x, pos_y, index) {
+    const moduleName = this.getModuleFromNodeId(id_output);
+    const node = moduleName && this.drawflow.drawflow[moduleName].data[id_output];
+    const connection = node && node.outputs[output_class] && node.outputs[output_class].connections.find(item => String(item.node) === String(id_input) && item.output === input_class);
+    if(!connection) {
+      return false;
+    }
+    if(connection.points === undefined) {
+      connection.points = [];
+    }
+    const at = index === undefined ? connection.points.length : Math.max(0, Math.min(index, connection.points.length));
+    connection.points.splice(at, 0, { pos_x: pos_x, pos_y: pos_y });
+    if(this.reroute && moduleName === this.module) {
+      const ele = this.container.querySelector('.connection.node_in_node-' + id_input + '.node_out_node-' + id_output + '.' + output_class + '.' + input_class);
+      Array.from(ele.querySelectorAll('.point')).forEach(point => point.remove());
+      Array.from(ele.querySelectorAll('.main-path')).slice(1).forEach(path => path.remove());
+      if(this.reroute_fix_curvature) {
+        connection.points.forEach(() => {
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.classList.add('main-path');
+          path.setAttributeNS(null, 'd', '');
+          ele.appendChild(path);
+        });
+      }
+      connection.points.forEach(item => {
+        const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        point.classList.add('point');
+        point.setAttributeNS(null, 'cx', item.pos_x);
+        point.setAttributeNS(null, 'cy', item.pos_y);
+        point.setAttributeNS(null, 'r', this.reroute_width);
+        ele.appendChild(point);
+      });
+      this.updateConnectionNodes('node-' + id_output);
+    }
+    this.dispatch('addReroute', String(id_output));
+    return true;
+  }
+
   addRerouteImport(dataNode) {
     const reroute_width = this.reroute_width
     const reroute_fix_curvature = this.reroute_fix_curvature
