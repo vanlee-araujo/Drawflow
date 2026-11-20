@@ -401,5 +401,10 @@ Example of exported data:
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
 There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
 
+## Credits
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
+
+- Outputs with non-sequential names on import (issue #808): idea from Daniel Vidal Cussi ([danieldvc](https://github.com/danieldvc), PR #260).
+
 ## License
 MIT License
