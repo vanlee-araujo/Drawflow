@@ -265,8 +265,8 @@ Mehtod | Description
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
 `updateNodeDataFromId` | Update data element. Ex: `5, { name: 'Drawflow' }`
-`addNodeInput(id)` | Add input to node. Ex id: `5`
-`addNodeOutput(id)` | Add output to node. Ex id: `5`
+`addNodeInput(id)` | Add input to node and return its name (`'input_3'`). Ex id: `5`
+`addNodeOutput(id)` | Add output to node and return its name (`'output_3'`). Ex id: `5`
 `removeNodeInput(id, input_class)` | Remove input to node. Ex id: `5`, `input_2`
 `removeNodeOutput(id, output_class)` | Remove output to node. Ex id: `5`, `output_2`
 `addConnection(id_output, id_input, output_class, input_class)` | Add connection. Ex: `15,16,'output_1','input_1'`
