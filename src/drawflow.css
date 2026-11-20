@@ -139,3 +139,13 @@
   right: -15px;
   top: -15px;
 }
+
+/* While dragging: nodes and reroute points move, the canvas pans */
+.parent-drawflow.drawflow-dragging,
+.parent-drawflow.drawflow-dragging * {
+  cursor: move;
+}
+.parent-drawflow.drawflow-panning,
+.parent-drawflow.drawflow-panning * {
+  cursor: grabbing;
+}

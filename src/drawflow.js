@@ -344,7 +344,9 @@ export default class Drawflow {
       var e_pos_x = e.clientX;
       var e_pos_y = e.clientY;
     }
-
+    // Cursor while dragging: nodes and reroute points move, the canvas pans
+    this.container.classList.toggle('drawflow-dragging', !!(this.drag || this.drag_point));
+    this.container.classList.toggle('drawflow-panning', !!this.editor_selected);
 
     if(this.connection) {
       this.updateConnection(e_pos_x, e_pos_y);
@@ -515,6 +517,7 @@ export default class Drawflow {
     this.connection = false;
     this.ele_selected = null;
     this.editor_selected = false;
+    this.container.classList.remove('drawflow-dragging', 'drawflow-panning');
 
     this.dispatch('mouseUp', e);
   }
