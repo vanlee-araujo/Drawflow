@@ -1877,6 +1877,7 @@ export default class Drawflow {
   clear () {
     this.precanvas.innerHTML = "";
     this.drawflow = { "drawflow": { "Home": { "data": {} }}};
+    this.module = 'Home';
   }
   export () {
     const dataExport = JSON.parse(JSON.stringify(this.drawflow));
@@ -1885,7 +1886,9 @@ export default class Drawflow {
   }
 
   import (data, notifi = true) {
+    const module = this.module; // clear() goes back to 'Home'
     this.clear();
+    this.module = module;
     this.drawflow = JSON.parse(JSON.stringify(data));
     this.load();
     if(notifi) {
