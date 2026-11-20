@@ -263,6 +263,8 @@ Mehtod | Description
 `zoom_out()` | Decrement zoom -0.1
 `getNodeFromId(id)` | Get Info of node. Ex: id: `5`
 `getNodesFromName(name)` | Return Array of nodes id. Ex: name: `telegram`
+`getAllNodes(module)` | Ids of the nodes of a module, the current one by default
+`getConnectedNodes(id, port)` | Ids of the nodes connected to a node, on every port or on one. Ex: `5` or `5, 'output_1'`
 `removeNodeId(id)` | Remove node. Ex id: `node-x`
 `updateNodeDataFromId` | Update data element. Ex: `5, { name: 'Drawflow' }`
 `addNodeInput(id)` | Add input to node. Ex id: `5`
