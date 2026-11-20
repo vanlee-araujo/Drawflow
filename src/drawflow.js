@@ -78,6 +78,8 @@ export default class Drawflow {
     this.container.addEventListener('input', this.updateNodeValue.bind(this));
 
     this.container.addEventListener('dblclick', this.dblclick.bind(this));
+    /* End a drag when the window loses the focus */
+    window.addEventListener('blur', () => this.cancelPointer());
     /* Mobile zoom */
     this.container.onpointerdown = this.pointerdown_handler.bind(this);
     this.container.onpointermove = this.pointermove_handler.bind(this);
@@ -344,7 +346,7 @@ export default class Drawflow {
       var e_pos_x = e.clientX;
       var e_pos_y = e.clientY;
     }
-
+    this.last_pointer = { x: e_pos_x, y: e_pos_y };
 
     if(this.connection) {
       this.updateConnection(e_pos_x, e_pos_y);
@@ -517,6 +519,17 @@ export default class Drawflow {
     this.editor_selected = false;
 
     this.dispatch('mouseUp', e);
+  }
+
+  // The window lost the focus (another window, alt+tab) in the middle of a drag: end it where the pointer was,
+  // on the container, so that a connection being drawn is cancelled
+  cancelPointer() {
+    if(!(this.drag || this.drag_point || this.editor_selected || this.connection)) {
+      return false;
+    }
+    const pointer = this.last_pointer || { x: this.pos_x, y: this.pos_y };
+    this.dragEnd({ type: 'mouseup', clientX: pointer.x, clientY: pointer.y, target: this.container });
+    return true;
   }
   contextmenu(e) {
     this.dispatch('contextmenu', e);
