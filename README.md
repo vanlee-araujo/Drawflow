@@ -176,6 +176,7 @@ Parameter | Type | Default | Description
 `zoom_min` | Number | 0.5 | Default zoom min
 `zoom_value` | Number | 0.1 | Default zoom value update
 `zoom_last_value` | Number | 1 | Default zoom last value
+`zoom_use_ctrl_key` | Boolean | true | Mouse wheel zooms only with the ctrl key pressed. `false` zooms with the wheel alone
 `draggable_inputs` | Boolean | true | Drag nodes on click inputs
 `useuuid` | Boolean | false | Use UUID as node ID instead of integer index. Only affect newly created nodes, do not affect imported nodes
 
@@ -400,6 +401,11 @@ Example of exported data:
 ## Example
 View the complete example in folder [docs](https://github.com/jerosoler/Drawflow/tree/master/docs).  
 There is also an [example](docs/drawflow-element.html) how to use Drawflow in a custom element. (based on [LitElement](https://lit-element.polymer-project.org)).  
+
+## Credits
+Drawflow is created by [Jero Soler](https://github.com/jerosoler/Drawflow). Some changes come from pull requests and forks of the project, under the same MIT license:
+
+- `zoom_use_ctrl_key` option: ftab ([eviltik](https://github.com/eviltik), PR #648).
 
 ## License
 MIT License
